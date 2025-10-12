@@ -78,66 +78,72 @@ const BasicInfoForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label htmlFor="name">이름</label>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-md mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <div className="space-y-2">
+        <label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">이름</label>
         <Controller
           name="name"
           control={control}
-          render={({ field }) => <input id="name" {...field} />}
+          render={({ field }) => <input id="name" {...field} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" />}
         />
-        {errors.name && <p>{errors.name.message}</p>}
+        {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>}
       </div>
 
-      <div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">성별</label>
         <Controller
           name="gender"
           control={control}
           render={({ field }) => (
-            <>
-                <input {...field} type="radio" id="female" value="FEMALE" name="gender" />
-                <label htmlFor="female">여성</label>
-                <input {...field} type="radio" id="male" value="MALE" name="gender" />
-                <label htmlFor="male">남성</label>
-            </>
+            <div className="flex gap-4">
+              <label htmlFor="female" className="flex items-center space-x-2 cursor-pointer">
+                <input {...field} type="radio" id="female" value="FEMALE" className="hidden" />
+                <span className={`px-4 py-2 rounded-md border ${field.value === 'FEMALE' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'}`}>여성</span>
+              </label>
+              <label htmlFor="male" className="flex items-center space-x-2 cursor-pointer">
+                <input {...field} type="radio" id="male" value="MALE" className="hidden" />
+                <span className={`px-4 py-2 rounded-md border ${field.value === 'MALE' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'}`}>남성</span>
+              </label>
+            </div>
           )}
         />
-        {errors.gender && <p>{errors.gender.message}</p>}
+        {errors.gender && <p className="text-sm text-red-600 mt-1">{errors.gender.message}</p>}
       </div>
 
-      <div>
-        <label htmlFor="birthdate">생년월일</label>
+      <div className="space-y-2">
+        <label htmlFor="birthdate" className="text-sm font-medium text-gray-700 dark:text-gray-300">생년월일</label>
         <Controller
           name="birthdate"
           control={control}
-          render={({ field }) => <input id="birthdate" {...field} onChange={(e) => {
-            handleBirthdateChange(e);
-          }} />}
+          render={({ field }) => <input id="birthdate" {...field} onChange={handleBirthdateChange} placeholder="YYYY-MM-DD" className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" />}
         />
-        {errors.birthdate && <p>{errors.birthdate.message}</p>}
+        {errors.birthdate && <p className="text-sm text-red-600 mt-1">{errors.birthdate.message}</p>}
       </div>
 
-      <div>
-        <label htmlFor="height">키</label>
-        <Controller
-          name="height"
-          control={control}
-          render={({ field }) => <input id="height" type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} />}
-        />
-        {errors.height && <p>{errors.height.message}</p>}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label htmlFor="height" className="text-sm font-medium text-gray-700 dark:text-gray-300">키 (cm)</label>
+          <Controller
+            name="height"
+            control={control}
+            render={({ field }) => <input id="height" type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" />}
+          />
+          {errors.height && <p className="text-sm text-red-600 mt-1">{errors.height.message}</p>}
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="weight" className="text-sm font-medium text-gray-700 dark:text-gray-300">몸무게 (kg)</label>
+          <Controller
+            name="weight"
+            control={control}
+            render={({ field }) => <input id="weight" type="number" step="0.1" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" />}
+          />
+          {errors.weight && <p className="text-sm text-red-600 mt-1">{errors.weight.message}</p>}
+        </div>
       </div>
 
-      <div>
-        <label htmlFor="weight">몸무게</label>
-        <Controller
-          name="weight"
-          control={control}
-          render={({ field }) => <input id="weight" type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />}
-        />
-        {errors.weight && <p>{errors.weight.message}</p>}
-      </div>
-
-      <button type="submit" disabled={!isValid}>다음</button>
+      <button type="submit" disabled={!isValid} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed">
+        다음
+      </button>
     </form>
   );
 };
