@@ -1,7 +1,13 @@
 아래의 일일 명령은 지금 지시할 명령입니다. 아래 문장을 실행해주세요.
 <!-- 일일 명령 시작 -->
 
-우리 팀에서 커밋 컨벤션 통일을 위해 husky를 설치하려고 합니다. husky를 설치하고, 'gemini/conventions/01-git/02-commit-message.md'를 기반으로 commitLint를 작성해주세요.
+저는 지금부터 사용자 온보딩 단계를 개발할 예정입니다. 이번에는 그 중 첫 번째 단계인 '기본 프로필' 입력 폼을 TDD 방식으로 개발합니다. 개발 순서는 반드시 [단위 테스트 → 단위 로직 구현 → 통합 테스트 → 컴포넌트 구현] 순서를 따라야 합니다.
+
+1단계: 단위(유닛) 테스트 코드 작성
+테스트 문서는 gemini/test/test-format.md에 작성되어 있습니다. 이 테스트 문서를 기반으로, 입력값의 유효성을 검사하는 순수 함수들의 동작을 검증하기 위한 단위 테스트 코드를 작성해주세요.
+
+파일 경로: src/shared/lib/validators.test.ts
+테스트 대상: validateName, validateBirthdate, validateHeight, validateWeight 함수
 
 <!-- 일일 명령 종료 -->
 

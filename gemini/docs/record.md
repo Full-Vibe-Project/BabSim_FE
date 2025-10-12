@@ -1,6 +1,7 @@
-작업 한줄 요약 : `03-pull-request-rules.md` 템플릿을 기반으로 PR 메시지를 재작성했습니다.
+작업 한줄 요약 : TDD 방식으로 프로필 입력 폼의 유효성 검사 함수에 대한 단위 테스트를 작성하고, 테스트를 통과하는 로직을 구현했습니다.
 상세 변경 내용(5줄 내외) : 
-- `gemini/conventions/01-git/03-pull-request-rules.md` 파일을 읽어 PR 템플릿을 확인했습니다.
-- `git diff`를 사용하여 `main` 브랜치와의 변경사항을 다시 확인했습니다.
-- 새로운 템플릿에 맞춰 PR 제목, 타입, 관련 이슈, 개요, 작업 상세 내용, 테스트 방법 등의 항목을 채웠습니다.
-- 완성된 PR 메시지를 `gemini/output.md` 파일에 덮어썼습니다.
+- `gemini/test/test-format.md`의 명세를 기반으로 `validators.test.ts` 파일에 단위 테스트 코드를 작성했습니다.
+- `validateName`, `validateBirthdate`, `validateHeight`, `validateWeight` 함수에 대한 테스트 케이스를 포함했습니다.
+- `vitest`를 사용하여 테스트를 실행하고, 모든 테스트가 실패하는 것을 확인했습니다. (Red)
+- `validators.ts` 파일에 각 함수의 유효성 검사 로직을 구현했습니다.
+- 다시 `vitest`를 실행하여 모든 단위 테스트가 통과하는 것을 확인했습니다. (Green)
