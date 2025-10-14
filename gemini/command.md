@@ -1,23 +1,26 @@
 아래의 일일 명령은 지금 지시할 명령입니다. 아래 문장을 실행해주세요.
 <!-- 일일 명령 시작 -->
 
-저는 지금부터 사용자 온보딩 단계를 개발할 예정입니다. 이번에는 그 중 첫 번째 단계인 '기본 프로필' 입력 폼을 TDD 방식으로 개발합니다. 개발 순서는 반드시 [단위 테스트 → 단위 로직 구현 → 통합 테스트 → 컴포넌트 구현] 순서를 따라야 합니다.
+사용자 온보딩의 두 번째 단계인 '건강 정보' 선택 폼을 TDD 방식으로 개발합니다. 개발 순서는 반드시 [단위 테스트 → 단위 로직 구현 → 통합 테스트 → 컴포넌트 구현] 순서를 따라야 합니다.
 
-### 3단계: 통합 테스트 코드 작성
-이제, 여러 UI 요소와 로직이 조립된 BasicInfoForm 컴포넌트 전체가 사용자의 상호작용에 올바르게 반응하는지 검증하기 위한 통합 테스트 코드를 작성할 예정입니다. 테스트 문서는 gemini/test/test-format.md에 작성되어 있습니다. 이 테스트 문서를 기반으로, 컴포넌트의 동작을 검증하기 위한 단위 테스트 코드를 작성해주세요.
+1단계: 단위(유닛) 테스트 코드 작성
+먼저, '상호 배타적 선택' 규칙을 처리하는 순수 함수의 동작을 검증하기 위한 단위 테스트 코드를 작성해주세요.
 
-파일 경로: src/features/onboarding/ui/BasicInfoForm.test.tsx
-테스트 대상: BasicInfoForm 컴포넌트
+파일 경로: src/features/onboarding/lib/selection.test.ts
+테스트 대상: updateSelection 함수
 
-### 4단계: 컴포넌트 구현
-위에서 작성한 3단계의 모든 테스트를 통과하는 BasicInfoForm 컴포넌트의 실제 구현 코드를 작성해주세요.
-파일 경로: src/features/onboarding/ui/BasicInfoForm.tsx
-컴포넌트의 스타일은 gemini/basic_info.png 사진을 참고해주세요.
+요구사항: updateSelection(currentSelection: string[], clickedItem: string): string[] 형태의 함수 시그니처를 가집니다.
 
-요구사항:
-- react-hook-form을 사용하여 폼 상태를 관리합니다.
-- 2단계에서 만든 Validator 함수들을 사용하여 각 필드의 유효성을 검증합니다.
-- UI는 shadcn-ui의 Input, Button, RadioGroup 등의 컴포넌트를 활용하여 구성합니다.
+아래의 모든 테스트 케이스를 포함해야 합니다.
+일반 항목: 선택 배열에 새 항목 추가, 기존 항목 제거
+
+상호작용: '해당사항 없음' 선택 시 다른 모든 항목 제거, 다른 항목 선택 시 '해당사항 없음' 제거 등 인수 조건(AC-2, AC-3, AC-4)에 명시된 모든 시나리오.
+
+2단계: 단위(유닛) 로직 구현
+위에서 작성한 1단계의 모든 테스트를 통과하는 updateSelection 함수의 실제 구현 코드를 작성해주세요.
+
+파일 경로: src/features/onboarding/lib/selection.ts
+
 
 <!-- 일일 명령 종료 -->
 
