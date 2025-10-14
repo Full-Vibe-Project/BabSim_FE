@@ -1,38 +1,32 @@
 아래의 일일 명령은 지금 지시할 명령입니다. 아래 문장을 실행해주세요.
 <!-- 일일 명령 시작 -->
 
-사용자 온보딩의 마지막 단계인 **'건강 목표 설정'**의 동적 유효성 검사 로직을 TDD 방식으로 개발합니다. 이 작업은 단위(유닛) 테스트에만 집중하며, 반드시 [테스트 코드 작성 → 로직 구현] 순서를 따라야 합니다.
+사용자 온보딩의 마지막 단계인 '건강 목표 설정' 폼을 TDD 방식으로 개발합니다. 이 작업은 통합 테스트에만 집중하며, 반드시 [테스트 코드 작성 → 컴포넌트 구현] 순서를 따라야 합니다. (관련 단위 테스트는 이미 완료되었습니다.)
 
-1단계: 단위(유닛) 테스트 코드 작성
-먼저, 목표 체중과 주간 목표 값의 유효성을 검사하는 순수 함수들의 동작을 검증하기 위한 단위 테스트 코드를 작성해주세요.
+컴포넌트의 레이아웃과 필요한 요소는 gemini/goal_setting.png 파일을 참고해주세요.
 
-파일 경로: src/shared/lib/goalValidators.test.ts
-테스트 대상: validateGoalWeight, validateWeeklyGoal 함수
+1단계: 통합 테스트 코드 작성
+먼저, 여러 UI 요소와 동적 로직이 조립된 GoalSettingForm 컴포넌트 전체가 사용자의 상호작용에 올바르게 반응하는지 검증하기 위한 통합 테스트 코드를 작성해주세요.
 
-요구사항: 모든 Validator 함수는 유효할 경우 { isSuccess: true, msg: null }을, 유효하지 않을 경우 { isSuccess: false, msg: "에러 메시지" } 형태의 객체를 반환해야 합니다.
+파일 경로: src/features/onboarding/ui/GoalSettingForm.test.tsx
+테스트 대상: GoalSettingForm 컴포넌트
 
+요구사항:
 아래의 모든 테스트 케이스를 포함해야 합니다.
+목표 유형 선택: 라디오 버튼처럼 한 번에 하나의 목표 유형만 선택되는지, 그리고 '체중 관리' 선택 시에만 체중 입력 필드가 활성화되는지 확인.
+동적 유효성 검사: 목표 체중이 현재 체중과 같을 때 에러 메시지가 올바르게 표시되는지 확인.
+'시작하기' 버튼 활성화: 초기 렌더링 시 비활성화 상태인지, 그리고 각기 다른 '목표 유형'에 따라 모든 필수 필드가 채워졌을 때만 버튼이 활성화되는지 확인.
 
-validateGoalWeight: 
-- 유효하고 서로 다른 현재/목표 체중
-- 현재 체중과 목표 체중이 동일한 경우
-- 숫자가 아니거나 음수인 경우
-- 유효 범위를 벗어난 경우 (20kg 미만 또는 200kg 초과)
+2단계: 컴포넌트 구현
+위에서 작성한 1단계의 모든 테스트를 통과하는 GoalSettingForm 컴포넌트의 실제 구현 코드를 작성해주세요.
 
-validateWeeklyGoal:
-- 한도 내의 유효한 정수값
-- 음수값
-- 정수가 아닌 값
-- 최대 한도를 초과하는 값
+파일 경로: src/features/onboarding/ui/GoalSettingForm.tsx
 
-2단계: 단위(유닛) 로직 구현
-위에서 작성한 1단계의 모든 테스트를 통과하는 validateGoalWeight와 validateWeeklyGoal 함수의 실제 구현 코드를 작성해주세요.
-
-파일 경로: src/shared/lib/goalValidators.ts
-
-함수 시그니처:
-validateGoalWeight(currentWeight: number, targetWeight: number)
-validateWeeklyGoal(value: number, maxValue: number)
+요구사항:
+react-hook-form을 사용하여 폼의 전체 상태(선택된 목표 유형, 입력값 등)를 관리합니다.
+이전에 단위 테스트로 검증된 validateGoalWeight 등의 Validator 함수들을 react-hook-form의 rules와 연동하여 유효성을 검증합니다.
+UI는 shadcn-ui의 RadioGroup, Input, Select, Button 등의 컴포넌트를 활용하여 구성합니다.
+선택된 '목표 유형' 상태에 따라 체중 입력 필드의 disabled 속성을 동적으로 제어해야 합니다.
 
 <!-- 일일 명령 종료 -->
 
