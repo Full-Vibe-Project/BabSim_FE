@@ -1,32 +1,38 @@
 아래의 일일 명령은 지금 지시할 명령입니다. 아래 문장을 실행해주세요.
 <!-- 일일 명령 시작 -->
 
-사용자 온보딩의 두 번째 단계인 '건강 정보' 선택 폼을 TDD 방식으로 개발합니다. 개발 순서는 반드시 [단위 테스트 → 단위 로직 구현 → 통합 테스트 → 컴포넌트 구현] 순서를 따라야 합니다.
+사용자 온보딩의 마지막 단계인 **'건강 목표 설정'**의 동적 유효성 검사 로직을 TDD 방식으로 개발합니다. 이 작업은 단위(유닛) 테스트에만 집중하며, 반드시 [테스트 코드 작성 → 로직 구현] 순서를 따라야 합니다.
 
-컴포넌트에 들어가는 버튼의 요소와 레이아웃은 gemini/health_info.png를 참고해주세요.
+1단계: 단위(유닛) 테스트 코드 작성
+먼저, 목표 체중과 주간 목표 값의 유효성을 검사하는 순수 함수들의 동작을 검증하기 위한 단위 테스트 코드를 작성해주세요.
 
-3단계: 통합 테스트 코드 작성
-이제, 여러 체크박스가 조립된 HealthInfoForm 컴포넌트가 사용자의 상호작용에 올바르게 반응하는지 검증하기 위한 통합 테스트 코드를 작성해주세요.
+파일 경로: src/shared/lib/goalValidators.test.ts
+테스트 대상: validateGoalWeight, validateWeeklyGoal 함수
 
-파일 경로: src/features/onboarding/ui/HealthInfoForm.test.tsx
+요구사항: 모든 Validator 함수는 유효할 경우 { isSuccess: true, msg: null }을, 유효하지 않을 경우 { isSuccess: false, msg: "에러 메시지" } 형태의 객체를 반환해야 합니다.
 
-테스트 대상: HealthInfoForm 컴포넌트
+아래의 모든 테스트 케이스를 포함해야 합니다.
 
-요구사항: 아래의 모든 테스트 케이스를 포함해야 합니다.
-다중 선택: '당뇨병'과 '고혈압'이 동시에 체크되는지 확인.
-상호 배타 동작: '당뇨병' 체크 후 '해당사항 없음'을 체크하면, '당뇨병'이 실제로 체크 해제되는지 화면을 통해 검증.
-상호 배타 동작 (역방향): '해당사항 없음' 체크 후 '당뇨병'을 체크하면, '해당사항 없음'이 실제로 체크 해제되는지 화면을 통해 검증.
-버튼 상태: 초기 렌더링 시 '다음' 버튼이 활성화 상태인지 확인.
+validateGoalWeight: 
+- 유효하고 서로 다른 현재/목표 체중
+- 현재 체중과 목표 체중이 동일한 경우
+- 숫자가 아니거나 음수인 경우
+- 유효 범위를 벗어난 경우 (20kg 미만 또는 200kg 초과)
 
-4단계: 컴포넌트 구현
-위에서 작성한 3단계의 모든 테스트를 통과하는 HealthInfoForm 컴포넌트의 실제 구현 코드를 작성해주세요.
+validateWeeklyGoal:
+- 한도 내의 유효한 정수값
+- 음수값
+- 정수가 아닌 값
+- 최대 한도를 초과하는 값
 
-파일 경로: src/features/onboarding/ui/HealthInfoForm.tsx
-요구사항: useState를 사용하여 선택된 항목 배열(예: selectedConditions) 상태를 관리합니다.
+2단계: 단위(유닛) 로직 구현
+위에서 작성한 1단계의 모든 테스트를 통과하는 validateGoalWeight와 validateWeeklyGoal 함수의 실제 구현 코드를 작성해주세요.
 
-각 체크박스의 onClick 이벤트 핸들러는 2단계에서 만든 updateSelection 함수를 호출하여 새로운 상태를 계산하고, useState의 setter 함수로 상태를 업데이트합니다.
+파일 경로: src/shared/lib/goalValidators.ts
 
-UI는 shadcn-ui의 Checkbox, Label 등의 컴포넌트를 활용하여 구성합니다.
+함수 시그니처:
+validateGoalWeight(currentWeight: number, targetWeight: number)
+validateWeeklyGoal(value: number, maxValue: number)
 
 <!-- 일일 명령 종료 -->
 

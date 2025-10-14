@@ -1,44 +1,50 @@
 ### **1. 사용자 스토리 (User Story)**
 
-- **As a**: 신규 사용자
-- **I want to**: 나의 기저질환과 식품 알레르기를 쉽고 명확하게 선택하고 싶습니다
-- **So that**: 내 건강 상태에 대한 정확한 정보를 제공하여 다음 단계로 넘어갈 수 있습니다
+- **As a**: `GoalSettingForm` 컴포넌트 개발자
+- **I want to**: 목표 체중과 주간 목표 값들의 유효성을 검사하고, 그 결과를 `{ isSuccess, msg }` 형태의 **명확한 객체로 반환**하는 순수 함수들을 사용하고 싶습니다
+- **So that**: '목표 유형' 선택에 따라 동적으로 변하는 복잡한 유효성 검사 규칙을 UI 코드와 분리하여, 예측 가능하고 유지보수하기 쉬운 코드를 작성할 수 있습니다
 
 ### **2. 인수 조건 (Acceptance Criteria)**
 
-> 사용자 스토리를 성공으로 판단하기 위한 비즈니스 규칙입니다. 통합 테스트에서는 컴포넌트의 UI 동작과 상태 변화를 검증합니다.
+> 사용자 스토리를 성공으로 판단하기 위한 비즈니스 규칙입니다. 각 함수의 '계약(Contract)'을 정의합니다.
 > 
-- `AC-1`: 사용자는 여러 개의 기저질환(또는 알레르기) 항목을 동시에 선택할 수 있다.
-- `AC-2`: '해당사항 없음' 체크박스는 다른 일반 항목들과 상호 배타적으로 동작해야 한다. 즉, '해당사항 없음'이 체크되면 다른 모든 항목은 체크 해제되어야 하며, 다른 항목이 체크되면 '해당사항 없음'은 체크 해제되어야 한다.
-- `AC-3`: 이 페이지의 모든 입력은 선택사항이므로, 아무것도 선택하지 않은 초기 상태에서도 '다음' 버튼은 항상 활성화 상태여야 한다.
+- **함수 반환 값 규칙**: 모든 Validator 함수는 아래 형태의 객체를 반환한다.
+    - **성공 시**: `{ isSuccess: true, msg: null }`
+    - **실패 시**: `{ isSuccess: false, msg: "실패 이유에 대한 에러 메시지" }`
+- **`validateGoalWeight` 함수 (인자: `currentWeight`, `targetWeight`)**
+    - `AC-1`: 유효한 범위(20~200kg) 내에 있으며 서로 다른 현재 체중과 목표 체중은 `{ isSuccess: true, msg: null }`을 반환해야 한다.
+    - `AC-2`: 목표 체중이 현재 체중과 같으면 `{ isSuccess: false, msg: "목표 체중은 현재 체중과 같을 수 없습니다." }`를 반환해야 한다.
+    - `AC-3`: 숫자가 아니거나 음수이면 `{ isSuccess: false, msg: "유효한 체중을 입력해주세요." }`를 반환해야 한다.
+    - `AC-4`: 유효한 범위를 벗어나면 `{ isSuccess: false, msg: "체중은 20kg 이상, 200kg 이하로 입력해주세요." }`를 반환해야 한다.
+- **`validateWeeklyGoal` 함수 (인자: `value`, `max_value`)**
+    - `AC-5`: `0` 이상, `max_value` 이하의 유효한 정수는 `{ isSuccess: true, msg: null }`을 반환해야 한다.
+    - `AC-6`: 음수이면 `{ isSuccess: false, msg: "주간 목표는 0 이상의 값이어야 합니다." }`를 반환해야 한다.
+    - `AC-7`: 정수가 아니면 `{ isSuccess: false, msg: "주간 목표는 정수만 입력 가능합니다." }`를 반환해야 한다.
+    - `AC-8`: `max_value`를 초과하면 `{ isSuccess: false, msg: "주간 목표값이 너무 큽니다." }`를 반환해야 한다.
 
 ### **3. 테스트 케이스 (Test Cases)**
 
-> 인수 조건을 검증하기 위한 구체적인 테스트 시나리오입니다. (Vitest + React Testing Library 코드의 설계도)
+> 인수 조건을 검증하기 위한 구체적인 테스트 시나리오입니다. (Vitest 코드의 설계도)
 > 
 
-### **[통합 테스트] `HealthInfoForm` 컴포넌트**
+### **[단위 테스트] `validateGoalWeight` 함수**
 
-- **`describe`: 다중 선택 기능 (Multiple Selections)**
-    - `it('(AC-1) should allow checking multiple condition checkboxes simultaneously')`
-    (여러 개의 질환 체크박스를 동시에 선택(체크)할 수 있어야 한다)
-        - **Act**: '당뇨병' 체크박스를 클릭한다.
-        - **Act**: '고혈압' 체크박스를 클릭한다.
-        - **Assert**: '당뇨병'과 '고혈압' 체크박스가 모두 체크된 상태인지 확인한다.
-- **`describe`: '해당사항 없음' 상호작용 ('Not Applicable' Interaction)**
-    - `it('(AC-2) should uncheck all other condition checkboxes when "Not Applicable" is checked')`
-    (다른 질환들이 체크된 상태에서 '해당사항 없음'을 체크하면, 다른 모든 질환 체크박스가 해제되어야 한다)
-        - **Arrange**: '당뇨병', '고혈압'이 체크된 상태로 시작한다.
-        - **Act**: '해당사항 없음' 체크박스를 클릭한다.
-        - **Assert**: '당뇨병'과 '고혈압' 체크박스가 모두 체크 해제되었는지 확인한다.
-        - **Assert**: '해당사항 없음' 체크박스는 체크된 상태인지 확인한다.
-    - `it('(AC-2) should uncheck the "Not Applicable" checkbox when any other condition is checked')`
-    ('해당사항 없음'이 체크된 상태에서 다른 질환을 체크하면, '해당사항 없음' 체크박스가 해제되어야 한다)
-        - **Arrange**: '해당사항 없음'이 체크된 상태로 시작한다.
-        - **Act**: '당뇨병' 체크박스를 클릭한다.
-        - **Assert**: '해당사항 없음' 체크박스가 체크 해제되었는지 확인한다.
-        - **Assert**: '당뇨병' 체크박스는 체크된 상태인지 확인한다.
-- **`describe`: 네비게이션 버튼 상태 (Navigation Button State)**
-    - `it('(AC-3) should render the "Next" button as enabled by default')`
-    (기본적으로 '다음' 버튼은 활성화된 상태로 렌더링되어야 한다)
-        - **Assert**: '다음' 버튼이 `disabled` 속성을 가지고 있지 않은지 확인한다.
+- `it('(AC-1) should return a success object for valid and different current and target weights')`
+(유효하고 서로 다른 현재/목표 체중에 대해 성공 객체를 반환해야 한다)
+- `it('(AC-2) should return an "identicalWeight" error object if current and target weights are the same')`
+(현재 체중과 목표 체중이 같으면 "동일 체중" 에러 객체를 반환해야 한다)
+- `it('(AC-3) should return an "invalid" error object for non-numeric or negative weights')`
+(숫자가 아니거나 음수인 체중에 대해 "유효하지 않음" 에러 객체를 반환해야 한다)
+- `it('(AC-4) should return an "outOfRange" error object if weights are outside the valid range')`
+(유효 범위를 벗어난 체중에 대해 "범위 초과" 에러 객체를 반환해야 한다)
+
+### **[단위 테스트] `validateWeeklyGoal` 함수**
+
+- `it('(AC-5) should return a success object for a valid weekly goal value within the limit')`
+(한도 내의 유효한 주간 목표값에 대해 성공 객체를 반환해야 한다)
+- `it('(AC-6) should return a "negativeValue" error object for a negative number')`
+(음수에 대해 "음수 값" 에러 객체를 반환해야 한다)
+- `it('(AC-7) should return a "notInteger" error object for a non-integer number')`
+(정수가 아닌 숫자에 대해 "정수 아님" 에러 객체를 반환해야 한다)
+- `it('(AC-8) should return a "maxValue" error object for a value exceeding the maximum limit')`
+(최대 한도를 초과하는 값에 대해 "최대값" 에러 객체를 반환해야 한다)
