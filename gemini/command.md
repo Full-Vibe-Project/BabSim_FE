@@ -3,24 +3,30 @@
 
 사용자 온보딩의 두 번째 단계인 '건강 정보' 선택 폼을 TDD 방식으로 개발합니다. 개발 순서는 반드시 [단위 테스트 → 단위 로직 구현 → 통합 테스트 → 컴포넌트 구현] 순서를 따라야 합니다.
 
-1단계: 단위(유닛) 테스트 코드 작성
-먼저, '상호 배타적 선택' 규칙을 처리하는 순수 함수의 동작을 검증하기 위한 단위 테스트 코드를 작성해주세요.
+컴포넌트에 들어가는 버튼의 요소와 레이아웃은 gemini/health_info.png를 참고해주세요.
 
-파일 경로: src/features/onboarding/lib/selection.test.ts
-테스트 대상: updateSelection 함수
+3단계: 통합 테스트 코드 작성
+이제, 여러 체크박스가 조립된 HealthInfoForm 컴포넌트가 사용자의 상호작용에 올바르게 반응하는지 검증하기 위한 통합 테스트 코드를 작성해주세요.
 
-요구사항: updateSelection(currentSelection: string[], clickedItem: string): string[] 형태의 함수 시그니처를 가집니다.
+파일 경로: src/features/onboarding/ui/HealthInfoForm.test.tsx
 
-아래의 모든 테스트 케이스를 포함해야 합니다.
-일반 항목: 선택 배열에 새 항목 추가, 기존 항목 제거
+테스트 대상: HealthInfoForm 컴포넌트
 
-상호작용: '해당사항 없음' 선택 시 다른 모든 항목 제거, 다른 항목 선택 시 '해당사항 없음' 제거 등 인수 조건(AC-2, AC-3, AC-4)에 명시된 모든 시나리오.
+요구사항: 아래의 모든 테스트 케이스를 포함해야 합니다.
+다중 선택: '당뇨병'과 '고혈압'이 동시에 체크되는지 확인.
+상호 배타 동작: '당뇨병' 체크 후 '해당사항 없음'을 체크하면, '당뇨병'이 실제로 체크 해제되는지 화면을 통해 검증.
+상호 배타 동작 (역방향): '해당사항 없음' 체크 후 '당뇨병'을 체크하면, '해당사항 없음'이 실제로 체크 해제되는지 화면을 통해 검증.
+버튼 상태: 초기 렌더링 시 '다음' 버튼이 활성화 상태인지 확인.
 
-2단계: 단위(유닛) 로직 구현
-위에서 작성한 1단계의 모든 테스트를 통과하는 updateSelection 함수의 실제 구현 코드를 작성해주세요.
+4단계: 컴포넌트 구현
+위에서 작성한 3단계의 모든 테스트를 통과하는 HealthInfoForm 컴포넌트의 실제 구현 코드를 작성해주세요.
 
-파일 경로: src/features/onboarding/lib/selection.ts
+파일 경로: src/features/onboarding/ui/HealthInfoForm.tsx
+요구사항: useState를 사용하여 선택된 항목 배열(예: selectedConditions) 상태를 관리합니다.
 
+각 체크박스의 onClick 이벤트 핸들러는 2단계에서 만든 updateSelection 함수를 호출하여 새로운 상태를 계산하고, useState의 setter 함수로 상태를 업데이트합니다.
+
+UI는 shadcn-ui의 Checkbox, Label 등의 컴포넌트를 활용하여 구성합니다.
 
 <!-- 일일 명령 종료 -->
 
