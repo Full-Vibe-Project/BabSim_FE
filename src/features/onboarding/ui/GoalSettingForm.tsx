@@ -11,23 +11,26 @@ const formSchema = z.object({
   currentWeight: z.number().optional(),
   targetWeight: z.number().optional(),
   weeklyGoal: z.number(),
-}).refine(data => {
+}).superRefine((data, ctx) => {
   if (data.goalType === 'WEIGHT_MANAGEMENT') {
-    return data.currentWeight !== undefined && data.targetWeight !== undefined;
+    if (data.currentWeight === undefined || data.targetWeight === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "체중 관리를 위해 현재 체중과 목표 체중을 입력해주세요.",
+        path: ["currentWeight"],
+      });
+      return;
+    }
+    const result = validateGoalWeight(data.currentWeight, data.targetWeight);
+    if (!result.isSuccess) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: result.msg || '',
+        path: ["targetWeight"],
+      });
+    }
   }
-  return true;
-}, {
-  message: "체중 관리를 위해 현재 체중과 목표 체중을 입력해주세요.",
-  path: ["currentWeight"],
-}).refine(data => {
-  if (data.goalType === 'WEIGHT_MANAGEMENT' && data.currentWeight && data.targetWeight) {
-    return validateGoalWeight(data.currentWeight, data.targetWeight).isSuccess;
-  }
-  return true;
-}, data => ({
-  message: (data.goalType === 'WEIGHT_MANAGEMENT' && data.currentWeight && data.targetWeight) ? validateGoalWeight(data.currentWeight, data.targetWeight).msg || '' : '',
-  path: ["targetWeight"],
-}));
+});
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -75,7 +78,7 @@ const GoalSettingForm = () => {
           <Controller
             name="currentWeight"
             control={control}
-            render={({ field }) => <input id="currentWeight" type="number" {...field} disabled={goalType !== 'WEIGHT_MANAGEMENT'} onChange={e => field.onChange(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm disabled:bg-gray-200" />}
+            render={({ field }) => <input id="currentWeight" type="number" {...field} disabled={goalType !== 'WEIGHT_MANAGEMENT'} onChange={e => field.onChange(Math.max(0, parseFloat(e.target.value)))} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm disabled:bg-gray-200" />}
           />
         </div>
         <div className="space-y-2">
@@ -83,11 +86,12 @@ const GoalSettingForm = () => {
           <Controller
             name="targetWeight"
             control={control}
-            render={({ field }) => <input id="targetWeight" type="number" {...field} disabled={goalType !== 'WEIGHT_MANAGEMENT'} onChange={e => field.onChange(parseFloat(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm disabled:bg-gray-200" />}
+            render={({ field }) => <input id="targetWeight" type="number" {...field} disabled={goalType !== 'WEIGHT_MANAGEMENT'} onChange={e => field.onChange(Math.max(0, parseFloat(e.target.value)))} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm disabled:bg-gray-200" />}
           />
         </div>
       </div>
       {errors.targetWeight && <p className="text-sm text-red-600 mt-1">{errors.targetWeight.message}</p>}
+      {errors.currentWeight && <p className="text-sm text-red-600 mt-1">{errors.currentWeight.message}</p>}
 
       <div className="space-y-2">
         <label htmlFor="weeklyGoal" className="text-sm font-medium text-gray-700 dark:text-gray-300">주간 목표</label>
