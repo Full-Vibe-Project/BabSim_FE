@@ -4,7 +4,7 @@ import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { validateName, validateBirthdate, validateHeight, validateWeight } from '@/shared/lib/validators';
+import { validateName, validateBirthdate, validateHeight, validateWeight } from '@/shared/lib/basicInfoValidators';
 
 const formSchema = z.object({
   name: z.string().superRefine((val, ctx) => {

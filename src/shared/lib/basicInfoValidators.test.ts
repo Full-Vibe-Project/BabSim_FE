@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateName, validateBirthdate, validateHeight, validateWeight } from './validators';
+import { validateName, validateBirthdate, validateHeight, validateWeight } from './basicInfoValidators';
 
 describe('validateName', () => {
   it('should return a success object for a valid name', () => {
