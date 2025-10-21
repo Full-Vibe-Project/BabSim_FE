@@ -1,43 +1,48 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
-import { FormProvider, useForm } from 'react-hook-form';
 import HealthInfoForm from './HealthInfoForm';
-import { onboardingSchema, OnboardingData } from '../model/onboarding.schema';
-import { zodResolver } from '@hookform/resolvers/zod';
-
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  const methods = useForm<OnboardingData>({
-    resolver: zodResolver(onboardingSchema),
-    mode: 'onChange',
-  });
-  return <FormProvider {...methods}>{children}</FormProvider>;
-};
 
 describe('HealthInfoForm', () => {
-  it('should render all health options', () => {
-    render(
-      <TestWrapper>
-        <HealthInfoForm />
-      </TestWrapper>
-    );
-    expect(screen.getByLabelText('고혈압')).toBeInTheDocument();
-    expect(screen.getByLabelText('해당사항 없음')).toBeInTheDocument();
+  it('should allow multiple selections for allergies', async () => {
+    render(<HealthInfoForm />);
+    const allergyGroup = screen.getByRole('group', { name: /알러지/i });
+    await userEvent.click(within(allergyGroup).getByText('갑각류'));
+    await userEvent.click(within(allergyGroup).getByText('견과류'));
+    expect(within(allergyGroup).getByText('갑각류')).toHaveClass('bg-blue-500');
+    expect(within(allergyGroup).getByText('견과류')).toHaveClass('bg-blue-500');
   });
 
-  it('should allow multiple selections for health conditions', async () => {
-    render(
-      <TestWrapper>
-        <HealthInfoForm />
-      </TestWrapper>
-    );
-    const highBloodPressure = screen.getByLabelText('고혈압');
-    const diabetes = screen.getByLabelText('당뇨');
+  it('should clear other selections when "None" is selected for allergies', async () => {
+    render(<HealthInfoForm />);
+    const allergyGroup = screen.getByRole('group', { name: /알러지/i });
+    await userEvent.click(within(allergyGroup).getByText('갑각류'));
+    await userEvent.click(within(allergyGroup).getByText('해당사항 없음'));
+    expect(within(allergyGroup).getByText('해당사항 없음')).toHaveClass('bg-blue-500');
+    expect(within(allergyGroup).getByText('갑각류')).not.toHaveClass('bg-blue-500');
+  });
 
-    await userEvent.click(highBloodPressure);
-    await userEvent.click(diabetes);
+  it('should clear "None" when another allergy is selected', async () => {
+    render(<HealthInfoForm />);
+    const allergyGroup = screen.getByRole('group', { name: /알러지/i });
+    await userEvent.click(within(allergyGroup).getByText('해당사항 없음'));
+    await userEvent.click(within(allergyGroup).getByText('갑각류'));
+    expect(within(allergyGroup).getByText('갑각류')).toHaveClass('bg-blue-500');
+    expect(within(allergyGroup).getByText('해당사항 없음')).not.toHaveClass('bg-blue-500');
+  });
 
-    expect(highBloodPressure).toBeChecked();
-    expect(diabetes).toBeChecked();
+  it('should enable the "Next" button when at least one option is selected for each category', async () => {
+    render(<HealthInfoForm />);
+    const allergyGroup = screen.getByRole('group', { name: /알러지/i });
+    const diseaseGroup = screen.getByRole('group', { name: /만성 질환/i });
+    const dietGroup = screen.getByRole('group', { name: /식단 선호/i });
+
+    await userEvent.click(within(allergyGroup).getByText('갑각류'));
+    await userEvent.click(within(diseaseGroup).getByText('당뇨'));
+    await userEvent.click(within(dietGroup).getByText('저탄수화물'));
+
+    await waitFor(() => {
+        expect(screen.getByRole('button', { name: /다음/i })).toBeEnabled();
+    });
   });
 });

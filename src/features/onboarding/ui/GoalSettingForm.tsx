@@ -1,15 +1,56 @@
 'use client';
 
 import React from 'react';
-import { useFormContext, Controller } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { validateGoalWeight } from '@/shared/lib/goalValidators';
+
+const formSchema = z.object({
+  goalType: z.enum(['WEIGHT_MANAGEMENT', 'DIET_MANAGEMENT', 'HEALTH_MANAGEMENT']),
+  currentWeight: z.number().optional(),
+  targetWeight: z.number().optional(),
+  weeklyGoal: z.number(),
+}).superRefine((data, ctx) => {
+  if (data.goalType === 'WEIGHT_MANAGEMENT') {
+    if (data.currentWeight === undefined || data.targetWeight === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "체중 관리를 위해 현재 체중과 목표 체중을 입력해주세요.",
+        path: ["currentWeight"],
+      });
+      return;
+    }
+    const result = validateGoalWeight(data.currentWeight, data.targetWeight);
+    if (!result.isSuccess) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: result.msg || '',
+        path: ["targetWeight"],
+      });
+    }
+  }
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 const GoalSettingForm = () => {
-  const { control, formState: { errors }, watch } = useFormContext();
+  const { control, handleSubmit, formState: { errors, isValid }, watch } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    mode: 'onChange',
+    defaultValues: {
+      weeklyGoal: 500,
+    }
+  });
 
   const goalType = watch('goalType');
 
+  const onSubmit = (data: FormData) => {
+    console.log(data);
+  };
+
   return (
-    <div className="space-y-6 max-w-md mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-md mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
       <Controller
         name="goalType"
         control={control}
@@ -49,8 +90,8 @@ const GoalSettingForm = () => {
           />
         </div>
       </div>
-      {errors.targetWeight && <p className="text-sm text-red-600 mt-1">{errors.targetWeight.message as string}</p>}
-      {errors.currentWeight && <p className="text-sm text-red-600 mt-1">{errors.currentWeight.message as string}</p>}
+      {errors.targetWeight && <p className="text-sm text-red-600 mt-1">{errors.targetWeight.message}</p>}
+      {errors.currentWeight && <p className="text-sm text-red-600 mt-1">{errors.currentWeight.message}</p>}
 
       <div className="space-y-2">
         <label htmlFor="weeklyGoal" className="text-sm font-medium text-gray-700 dark:text-gray-300">주간 목표</label>
@@ -59,13 +100,17 @@ const GoalSettingForm = () => {
           control={control}
           render={({ field }) => (
             <select id="weeklyGoal" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-              <option value={500}>-500kcal</option>
-              <option value={1000}>-1000kcal</option>
+              <option value="500">-500kcal</option>
+              <option value="1000">-1000kcal</option>
             </select>
           )}
         />
       </div>
-    </div>
+
+      <button type="submit" disabled={!isValid} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400">
+        시작하기
+      </button>
+    </form>
   );
 };
 
