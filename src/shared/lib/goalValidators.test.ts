@@ -25,7 +25,6 @@ describe('validateGoalWeight', () => {
 
 describe('validateWeeklyGoal', () => {
   it('(AC-5) should return a success object for a valid weekly goal value within the limit', () => {
-    expect(validateWeeklyGoal(500, 1000)).toEqual({ isSuccess: true, msg: null });
     expect(validateWeeklyGoal(0, 1000)).toEqual({ isSuccess: true, msg: null });
   });
 

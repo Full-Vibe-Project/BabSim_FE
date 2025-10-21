@@ -1,49 +1,33 @@
-## chore(template): BS-14 add husky and commitlint for commit convention
+## 테스트 실패 항목 분석
 
-### 🎯 PR 타입
+현재 테스트 실행 결과, 다음과 같은 실패 항목들이 존재합니다.
 
-- [x] **Chore**: 기타 잡무
+### 실패한 테스트 스위트 (Suites)
 
-### 📌 관련 이슈
+1.  **`e2e/onboarding.spec.ts`**
+    *   **원인**: Playwright 테스트 설정 문제입니다. `test.describe()` 함수가 예상치 못한 방식으로 호출되고 있습니다. 이는 보통 설정 파일(`vitest.config.ts`)이나 다른 파일에서 `test.describe()`를 잘못 가져올 때 발생합니다.
 
-- **Related Issue**: [BS-14](https://your-jira-url.com/browse/BS-14)
+2.  **`src/features/auth/ui/LoginForm.test.tsx`**
+    *   **원인**: 테스트 스위트(`describe` 블록)를 찾을 수 없습니다. 현재 파일의 모든 테스트 코드가 주석 처리되어 있기 때문입니다.
 
-### 📝 개요
+3.  **`src/features/record/ui/FoodRecordForm.test.tsx`**
+    *   **원인**: 파일 변환(Transform) 오류입니다. 파일 끝에 예기치 않은 `}` 문자가 있어 `esbuild`가 파일을 제대로 파싱하지 못하고 있습니다.
 
-- **작업 배경 (Why)**: 팀의 커밋 컨벤션을 통일하여 Git 히스토리의 가독성을 높이고, 이를 기반으로 자동화된 변경 로그 생성을 준비하기 위해 husky와 commitlint를 도입합니다.
-- **핵심 변경 사항 (What)**: husky를 설치하여 commit-msg 훅을 설정하고, `gemini/conventions/01-git/02-commit-message.md`에 정의된 규칙에 따라 commitlint를 구성했습니다.
+4.  **`src/features/sync/ui/NotionSync.test.tsx`**
+    *   **원인**: 테스트 스위트를 찾을 수 없습니다. `LoginForm.test.tsx`와 마찬가지로 테스트 코드가 주석 처리되어 있습니다.
 
-### ✅ 작업 상세 내용
+5.  **`src/widgets/recommend/ui/MenuRecommendation.test.tsx`**
+    *   **원인**: 테스트 스위트를 찾을 수 없습니다. 테스트 코드가 주석 처리되어 있습니다.
 
-- [x] husky 및 commitlint 관련 패키지 설치
-- [x] `.husky/commit-msg` 훅 설정
-- [x] `commitlint.config.js` 파일 생성 및 규칙 정의
-- [x] Next.js 프로젝트 초기화
-- [x] `GEMINI.md` 및 `record.md` 문서 업데이트
+6.  **`src/widgets/report/ui/SummaryReport.test.tsx`**
+    *   **원인**: 테스트 스위트를 찾을 수 없습니다. 테스트 코드가 주석 처리되어 있습니다.
 
-### 📸 결과 및 테스트 방법
+### 실패한 개별 테스트
 
-- **실행 결과**:
-  <!-- (UI 변경 사항이 없으므로 스크린샷은 생략합니다.) -->
+1.  **`src/features/onboarding/ui/GoalSettingForm.test.tsx`**
+    *   **테스트명**: `should display an error message if the target weight is the same as the current weight`
+    *   **원인**: 테스트에서 "목표 체중은 현재 체중과 같을 수 없습니다."라는 에러 메시지를 찾지 못하고 있습니다. `onboarding.schema.ts`에서 `superRefine`을 사용하여 유효성 검사 로직을 수정했지만, 에러 메시지가 UI에 정상적으로 표시되지 않거나 테스트 환경에서 이를 감지하지 못하는 문제가 있는 것으로 보입니다.
 
-- **테스트 방법**:
-  1. 로컬에서 임의의 파일을 수정한 후, 커밋 컨벤션에 맞지 않는 메시지로 커밋을 시도합니다. (예: `git commit -m "test"`)
-  2. 커밋이 실패하는지 확인합니다.
-  3. 컨벤션에 맞는 메시지로 다시 커밋을 시도합니다. (예: `git commit -m "feat: add new feature"`)
-  4. 커밋이 성공하는지 확인합니다.
-
-### 🔎 리뷰어 집중 포인트
-
-- `commitlint.config.js`에 정의된 규칙이 팀 컨벤션과 일치하는지 확인 부탁드립니다.
-- `.husky/commit-msg` 훅이 정상적으로 동작하는지 확인 부탁드립니다.
-
-### ⚠️ 위험 요소 및 고려사항
-
-- **롤백 계획**: 이 PR을 Revert하고 `main` 브랜치를 재배포합니다.
-- **의존성 변경**: `husky`, `@commitlint/cli`, `@commitlint/config-conventional` 등 다수의 개발 의존성이 추가되었습니다. `package.json`을 참고해주세요.
-
-### 🤖 AI 참고사항 (for AI)
-
-- **Scope**: `.husky/`, `commitlint.config.js`, `package.json`
-- **Logic**: `commitlint.config.js`의 rules
-- **Prompt**: "`commitlint.config.js`의 규칙을 JIRA 티켓 번호(BS-14)를 필수로 포함하도록 수정해줘."
+2.  **`src/features/onboarding/ui/Onboarding.test.tsx`**
+    *   **테스트명**: `should progress through the entire onboarding flow and submit the data`
+    *   **원인**: `handleSubmit` 함수가 호출되지 않았습니다 (`expected "spy" to be called 1 times, but got 0 times`). 이는 온보딩 플로우의 마지막 단계에서 "시작하기" 버튼을 클릭했을 때 `form`의 `submit` 이벤트가 정상적으로 발생하지 않았음을 의미합니다. 유효성 검사 실패, 버튼 비활성화, 혹은 이벤트 핸들러 연결 문제일 수 있습니다.

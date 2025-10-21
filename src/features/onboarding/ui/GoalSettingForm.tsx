@@ -49,7 +49,7 @@ const GoalSettingForm = () => {
           />
         </div>
       </div>
-      {errors.targetWeight && <p className="text-sm text-red-600 mt-1">{errors.targetWeight.message as string}</p>}
+      {errors.targetWeight && <p data-testid="target-weight-error" className="text-sm text-red-600 mt-1">{errors.targetWeight.message as string}</p>}
       {errors.currentWeight && <p className="text-sm text-red-600 mt-1">{errors.currentWeight.message as string}</p>}
 
       <div className="space-y-2">

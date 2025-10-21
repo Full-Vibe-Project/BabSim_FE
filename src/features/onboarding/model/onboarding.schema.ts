@@ -39,14 +39,16 @@ export const onboardingSchema = z.object({
   targetWeight: z.number().optional(),
   weeklyGoal: z.number(),
   exerciseCount: z.number(),
-}).refine((data) => {
+}).superRefine((data, ctx) => {
   if (data.goalType === 'WEIGHT_MANAGEMENT') {
-    return data.currentWeight !== data.targetWeight;
+    if (data.currentWeight === data.targetWeight) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: '목표 체중은 현재 체중과 같을 수 없습니다.',
+        path: ["targetWeight"],
+      });
+    }
   }
-  return true;
-}, {
-  message: '목표 체중은 현재 체중과 같을 수 없습니다.',
-  path: ["targetWeight"],
 });
 
 export type OnboardingData = z.infer<typeof onboardingSchema>;
