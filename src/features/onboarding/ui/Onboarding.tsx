@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { onboardingSchema, OnboardingData } from '../model/onboarding.schema';
@@ -27,11 +27,7 @@ const Onboarding = ({ onSubmit }: OnboardingProps) => {
     defaultValues: data,
   });
 
-  const { trigger, getValues, reset } = methods;
-
-  useEffect(() => {
-    reset(data);
-  }, [data, reset]);
+  const { trigger, getValues } = methods;
 
   const handleNext = async () => {
     const fields = steps[currentStep].fields as (keyof OnboardingData)[];

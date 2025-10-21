@@ -22,7 +22,7 @@ describe('HealthInfoForm', () => {
       </TestWrapper>
     );
     expect(screen.getByLabelText('고혈압')).toBeInTheDocument();
-    expect(screen.getAllByText('해당사항 없음')[0]).toBeInTheDocument();
+    expect(screen.getByLabelText('해당사항 없음')).toBeInTheDocument();
   });
 
   it('should allow multiple selections for health conditions', async () => {
