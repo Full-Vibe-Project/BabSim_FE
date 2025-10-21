@@ -1,42 +1,44 @@
 ### **1. 사용자 스토리 (User Story)**
 
 - **As a**: 신규 사용자
-- **I want to**: 온보딩의 각 단계를 순서대로 진행하고, 내가 입력한 정보가 다음 단계로 넘어가도 유지되는 것을 확인하고 싶습니다
-- **So that**: 끊김 없는 경험을 통해 온보딩을 성공적으로 완료할 수 있습니다
+- **I want to**: 나의 건강 목표를 설정하고, 내 선택에 따라 폼이 지능적으로 반응하는 것을 확인하고 싶습니다
+- **So that**: 불필요한 정보를 입력하지 않고, 명확한 안내에 따라 쉽고 빠르게 온보딩을 완료할 수 있습니다
 
 ### **2. 인수 조건 (Acceptance Criteria)**
 
-> 사용자 스토리를 성공으로 판단하기 위한 비즈니스 규칙입니다. 통합 테스트에서는 Onboarding 컴포넌트의 흐름 제어(Flow Control)를 검증합니다.
+> 사용자 스토리를 성공으로 판단하기 위한 비즈니스 규칙입니다. 통합 테스트에서는 컴포넌트의 동적인 UI 동작과 상태 변화를 검증합니다.
 > 
-- `AC-1`: `Onboarding` 컴포넌트는 현재 단계(step)에 맞는 폼 컴포넌트(`BasicInfoForm`, `HealthInfoForm` 등)만 화면에 보여줘야 한다.
-- `AC-2`: 현재 단계의 모든 필수 필드가 유효하게 입력되지 않은 상태에서 '다음' 버튼을 클릭하면, 다음 단계로 넘어가지 않고 현재 단계에 머물러야 한다.
-- `AC-3`: 현재 단계의 모든 필드가 유효할 때 '다음' 버튼을 클릭하면, 다음 단계의 폼 컴포넌트로 성공적으로 넘어가야 한다.
-- `AC-4`: 다음 단계로 넘어갔다가 '이전' 버튼을 클릭하여 돌아와도, 이전에 입력했던 값들은 각 필드에 그대로 유지되어야 한다.
-- `AC-5`: 마지막 단계에서 모든 정보가 유효할 때 '시작하기' 버튼을 클릭하면, **3단계에 걸쳐 입력된 모든 데이터를 종합한 단일 객체**를 인자로 하여 최종 제출 함수(`onSubmit`)를 호출해야 한다.
+- `AC-1`: '목표 유형' 중 하나를 선택하면, 해당 옵션만 선택된 상태로 표시되어야 한다 (라디오 버튼 동작).
+- `AC-2`: '목표 유형'으로 '체중 관리'를 선택했을 때만 '현재 체중'과 '목표 체중' 입력 필드가 활성화(또는 표시)되어야 한다.
+- `AC-3`: '목표 체중'이 '현재 체중'과 동일하게 입력되면, "목표 체중은 현재 체중과 같을 수 없습니다."라는 에러 메시지가 표시되어야 한다.
+- `AC-4`: '목표 유형', '목표 기간' 등 모든 필수 필드가 유효하게 입력되기 전까지 '시작하기' 버튼은 비활성화 상태여야 한다.
+- `AC-5`: 선택된 목표 유형에 맞는 모든 필수 필드가 유효하게 입력되면, '시작하기' 버튼이 활성화되어야 한다.
 
 ### **3. 테스트 케이스 (Test Cases)**
 
 > 인수 조건을 검증하기 위한 구체적인 테스트 시나리오입니다. (Vitest + React Testing Library 코드의 설계도)
 > 
 
-### **[통합 테스트] `Onboarding` 컴포넌트**
+### **[통합 테스트] `GoalSettingForm` 컴포넌트**
 
-- **`describe`: 단계별 폼 렌더링 (Step-by-Step Form Rendering)**
-    - `it('(AC-1) should render the BasicInfoForm component for the initial step (step 1)')`
-    (초기 단계(1단계)에서는 BasicInfoForm을 렌더링해야 한다)
-    - `it('(AC-1) should render the HealthInfoForm component for the second step (step 2)')`
-    (2단계에서는 HealthInfoForm을 렌더링해야 한다)
-    - `it('(AC-1) should render the GoalSettingForm component for the third step (step 3)')`(3단계에서는 GoalSettingForm을 렌더링해야 한다)
-- **`describe`: 단계별 네비게이션 및 유효성 검사 (Step Navigation & Validation)**
-    - `it('(AC-2) should not navigate to the next step if the current step form is invalid')`
-    (현재 단계 폼이 유효하지 않으면 다음 단계로 이동해서는 안 된다)
-    - `it('(AC-3) should navigate from BasicInfoForm to HealthInfoForm when "Next" is clicked with valid data')`
-    (유효한 데이터와 함께 '다음'을 클릭하면 BasicInfoForm에서 HealthInfoForm으로 이동해야 한다)
-    - `it('(AC-4) should persist the data of BasicInfoForm when navigating back from HealthInfoForm')`
-    (HealthInfoForm에서 뒤로 돌아왔을 때 BasicInfoForm의 데이터는 유지되어야 한다)
-- **`describe`: 최종 데이터 제출 (Final Data Submission)**
-    - `it('(AC-5) should call the final onSubmit function with all aggregated data from all steps')`
-    (마지막 단계에서 '시작하기'를 클릭하면, 모든 단계의 모든 데이터를 종합하여 최종 onSubmit 함수를 호출해야 한다)
-        - **Arrange**: 사용자가 3단계의 모든 폼을 유효하게 채운 상태를 시뮬레이션한다.
-        - **Act**: 마지막 단계에서 '시작하기' 버튼을 클릭한다.
-        - **Assert**: `onSubmit` mock 함수가 **하나의 종합된 객체**를 인자로 받아 호출되었는지 확인한다.
+- **`describe`: 목표 유형 선택 (Goal Type Selection)**
+    - `it('(AC-1) should select only one goal type at a time, like a radio button')`
+    (라디오 버튼처럼 한 번에 하나의 목표 유형만 선택해야 한다)
+    - `it('(AC-2) should enable the weight input fields only when "Weight Management" is selected')`
+    ('체중 관리'가 선택되었을 때만 체중 입력 필드를 활성화해야 한다)
+    - `it('(AC-2) should disable the weight input fields when a goal type other than "Weight Management" is selected')`
+    ('체중 관리' 외 다른 목표 유형이 선택되면 체중 입력 필드를 비활성화해야 한다)
+- **`describe`: 동적 유효성 검사 (Dynamic Validation)**
+    - `it('(AC-3) should display an error message if the target weight is the same as the current weight')`
+    (목표 체중이 현재 체중과 같을 경우 에러 메시지를 표시해야 한다)
+    - `it('should remove the error message when the target weight is changed to be different')`
+    (목표 체중이 다른 값으로 변경되면 에러 메시지를 제거해야 한다)
+- **`describe`: '시작하기' 버튼 활성화 로직 (Submit Button Activation Logic)**
+    - `it('(AC-4) should render the "Start" button as disabled initially')`
+    (초기 렌더링 시 '시작하기' 버튼은 비활성화 상태여야 한다)
+    - `it('(AC-4) should keep the "Start" button disabled if "Weight Management" is selected but weight fields are invalid')`
+    ('체중 관리' 선택 후 체중 필드가 유효하지 않으면 '시작하기' 버튼은 비활성화 상태를 유지해야 한다)
+    - `it('(AC-5) should enable the "Start" button when all required fields for the "Weight Management" goal are validly filled')`
+    ('체중 관리' 목표에 대한 모든 필수 필드가 유효하게 채워지면 '시작하기' 버튼을 활성화해야 한다)
+    - `it('(AC-5) should enable the "Start" button when a goal type other than "Weight Management" is selected and all other required fields are filled')`
+    ('체중 관리' 외 다른 목표 유형 선택 후 나머지 필수 필드가 채워지면 '시작하기' 버튼을 활성화해야 한다)
