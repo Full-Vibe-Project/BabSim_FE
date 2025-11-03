@@ -32,21 +32,41 @@ export const onboardingSchema = z.object({
     const s = String(val);
     return !s.includes('.') || s.split('.')[1].length <= 1;
   }, { message: '유효한 몸무게를 입력해주세요.' }),
-  healthConditions: z.array(z.string()),
-  allergies: z.array(z.string()),
+  healthConditions: z.object({
+    allergies: z.array(z.string()),
+    chronicDiseases: z.array(z.string()),
+    dietPreferences: z.array(z.string()),
+  }),
   goalType: z.enum(['WEIGHT_MANAGEMENT', 'DIET_MANAGEMENT', 'HEALTH_MANAGEMENT']),
   currentWeight: z.number().optional(),
   targetWeight: z.number().optional(),
   weeklyGoal: z.number(),
   exerciseCount: z.number(),
-}).refine((data) => {
+}).superRefine((data, ctx) => {
   if (data.goalType === 'WEIGHT_MANAGEMENT') {
-    return data.currentWeight !== data.targetWeight;
+    if (data.currentWeight === undefined || data.targetWeight === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "체중 관리를 위해 현재 체중과 목표 체중을 입력해주세요.",
+        path: ["currentWeight"],
+      });
+      return;
+    }
+    if (data.currentWeight === data.targetWeight) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: '목표 체중은 현재 체중과 같을 수 없습니다.',
+        path: ["targetWeight"],
+      });
+    }
+    if (data.currentWeight <= 0 || data.targetWeight <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: '체중은 0보다 커야 합니다.',
+        path: ["currentWeight"],
+      });
+    }
   }
-  return true;
-}, {
-  message: '목표 체중은 현재 체중과 같을 수 없습니다.',
-  path: ["targetWeight"],
 });
 
 export type OnboardingData = z.infer<typeof onboardingSchema>;

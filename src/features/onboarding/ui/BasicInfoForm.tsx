@@ -78,7 +78,7 @@ const BasicInfoForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-md mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <div className="space-y-6 max-w-md mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
       <div className="space-y-2">
         <label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">이름</label>
         <Controller
@@ -144,7 +144,7 @@ const BasicInfoForm = () => {
       <button type="submit" disabled={!isValid} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed">
         다음
       </button>
-    </form>
+    </div>
   );
 };
 

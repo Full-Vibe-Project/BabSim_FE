@@ -1,56 +1,15 @@
 'use client';
 
 import React from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { validateGoalWeight } from '@/shared/lib/goalValidators';
-
-const formSchema = z.object({
-  goalType: z.enum(['WEIGHT_MANAGEMENT', 'DIET_MANAGEMENT', 'HEALTH_MANAGEMENT']),
-  currentWeight: z.number().optional(),
-  targetWeight: z.number().optional(),
-  weeklyGoal: z.number(),
-}).superRefine((data, ctx) => {
-  if (data.goalType === 'WEIGHT_MANAGEMENT') {
-    if (data.currentWeight === undefined || data.targetWeight === undefined) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "체중 관리를 위해 현재 체중과 목표 체중을 입력해주세요.",
-        path: ["currentWeight"],
-      });
-      return;
-    }
-    const result = validateGoalWeight(data.currentWeight, data.targetWeight);
-    if (!result.isSuccess) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.msg || '',
-        path: ["targetWeight"],
-      });
-    }
-  }
-});
-
-type FormData = z.infer<typeof formSchema>;
+import { Controller, useFormContext } from 'react-hook-form'; // Add useFormContext
 
 const GoalSettingForm = () => {
-  const { control, handleSubmit, formState: { errors, isValid }, watch } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    mode: 'onChange',
-    defaultValues: {
-      weeklyGoal: 500,
-    }
-  });
+  const { control, formState: { errors }, watch } = useFormContext(); // Use useFormContext
 
   const goalType = watch('goalType');
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
-  };
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-md mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <div className="space-y-6 max-w-md mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
       <Controller
         name="goalType"
         control={control}
@@ -107,10 +66,7 @@ const GoalSettingForm = () => {
         />
       </div>
 
-      <button type="submit" disabled={!isValid} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400">
-        시작하기
-      </button>
-    </form>
+    </div>
   );
 };
 
