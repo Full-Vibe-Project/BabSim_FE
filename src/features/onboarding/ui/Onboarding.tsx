@@ -12,7 +12,7 @@ import { useMutation } from '@tanstack/react-query';
 
 const steps = [
   { id: 'profile', component: BasicInfoForm, fields: ['name', 'gender', 'birthdate', 'height', 'weight'] },
-  { id: 'health', component: HealthInfoForm, fields: ['healthConditions', 'allergies'] },
+  { id: 'health', component: HealthInfoForm, fields: ['healthConditions'] },
   { id: 'goals', component: GoalSettingForm, fields: ['goalType', 'currentWeight', 'targetWeight', 'weeklyGoal', 'exerciseCount'] },
 ];
 
