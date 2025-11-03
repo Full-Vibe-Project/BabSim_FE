@@ -32,11 +32,8 @@ export const onboardingSchema = z.object({
     const s = String(val);
     return !s.includes('.') || s.split('.')[1].length <= 1;
   }, { message: '유효한 몸무게를 입력해주세요.' }),
-  healthConditions: z.object({
-    allergies: z.array(z.string()),
-    chronicDiseases: z.array(z.string()),
-    dietPreferences: z.array(z.string()),
-  }),
+  healthConditions: z.array(z.string()),
+  allergies: z.array(z.string()),
   goalType: z.enum(['WEIGHT_MANAGEMENT', 'DIET_MANAGEMENT', 'HEALTH_MANAGEMENT']),
   currentWeight: z.number().optional(),
   targetWeight: z.number().optional(),

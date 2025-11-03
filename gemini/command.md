@@ -1,45 +1,11 @@
 아래의 일일 명령은 지금 지시할 명령입니다. 아래 문장을 실행해주세요.
 <!-- 일일 명령 시작 -->
 
-현재 BasicInfoForm, HealthInfoForm, GoalSettingForm으로 분리된 온보딩 과정을 단일 제어 컴포넌트(Onboarding)와 단일 스키마(onboardingSchema)를 사용하는 '멀티스텝 폼(Multi-step Form)' 아키텍처로 리팩토링합니다.
+현재 onboarding에서 첫 페이지의 내용을 모두 채우고 다음 버튼을 눌러도 HealthInfoForm으로 넘어가지 않습니다.
+원인을 분석하여 해결방안을 제시하여 error-analyze.md 파일에 작성해주세요.
 
-아래의 명세서(Specifications)를 정확히 준수하여 TDD 3단계에서 작성된 Onboarding.test.tsx 통합 테스트를 통과하는 구현 코드를 작성해 주세요.
+그리고 현재 페이지 안에 다음 버튼이 2개가 있습니다. 둘 중 하나만 동작하게 해주세요.
 
-1. 명세서: 모델 (Schema)
-- 파일: src/features/onboarding/onboarding.schema.ts
-스키마 통합: zod를 사용하여 3단계 폼의 모든 필드를 포함하는 단일 onboardingSchema를 정의합니다.
-유효성 규칙: 기존 3개 폼의 모든 유효성 검사 규칙(예: nickname 2자 이상, height 양수 등)을 그대로 유지합니다.
-타입 export: export type OnboardingData = z.infer<typeof onboardingSchema>;를 통해 추론된 타입을 export 합니다.
-
-2. 명세서: UI (Components)
-
-### A. Onboarding.tsx (부모/제어 컴포넌트)
-파일: features/onboarding/ui/Onboarding.tsx
-상태 관리: const [step, setStep] = useState(1);과 같이 현재 단계를 관리하는 내부 step 상태를 가집니다.
-
-폼 중앙 제어 (핵심):
-react-hook-form의 useForm 훅을 이 컴포넌트에서 단 한 번만 호출합니다.
-resolver에 1번에서 생성한 zodResolver(onboardingSchema)를 연결합니다.
-const methods = useForm(...)의 모든 반환값을 <FormProvider {...methods}> 컴포넌트로 감싸 자식들에게 제공합니다.
-조건부 렌더링: step 상태에 따라 BasicInfoForm, HealthInfoForm, GoalSettingForm 중 하나만 조건부로 렌더링합니다.
-네비게이션: "이전", "다음", "제출" 버튼은 Onboarding 컴포넌트가 직접 렌더링하고 제어합니다.
-
-단계별 유효성 검사 (핵심):
-"다음" 버튼 클릭 시, setStep을 바로 호출하면 안 됩니다. react-hook-form의 trigger() 메서드를 호출하여 현재 step에 해당하는 필드들만 유효성 검사를 실행해야 합니다.
-예: const isValid = await trigger(['nickname', 'gender', 'birthDate']);
-
-isValid가 true일 때만 setStep(prev => prev + 1)을 실행합니다.
-
-최종 제출 (API 모킹):
-Tanstack Query의 useMutation 훅을 선언합니다.
-handleSubmit의 콜백 함수(onSubmit)에서 mutation.mutate(data)를 호출합니다.
-mutationFn (실제 API 호출 함수) 내부에는 // TODO: API 연결 시 실제 서버 요청 로직 구현 주석을 작성하고, Promise.resolve(data)를 반환하여 성공을 시뮬레이션합니다.
-
-### B. BasicInfoForm.tsx (및 HealthInfoForm, GoalSettingForm)
-파일: features/onboarding/ui/BasicInfoForm.tsx (외 2개)
-폼 상태 주입 (핵심): react-hook-form의 useFormContext() 훅을 호출하여 부모(Onboarding)의 register, control, formState 등을 가져옵니다.
-useForm 금지: 이 자식 컴포넌트들은 절대로 useForm을 직접 호출해서는 안 됩니다.
-책임 분리: 이 컴포넌트들은 shadcn/ui의 Input, RadioGroup 등 순수 폼 필드와 에러 메시지 렌더링만 담당합니다. "다음" 또는 "제출" 버튼을 포함해서는 안 됩니다.
 
 <!-- 일일 명령 종료 -->
 

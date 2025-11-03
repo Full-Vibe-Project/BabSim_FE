@@ -1,16 +1,17 @@
-에러 메시지 내용:
-1. In HTML, <form> cannot be a descendant of <form>.
-2. <form> cannot contain a nested <form>.
-3. Hydration failed because the server rendered HTML didn't match the client.
+## Onboarding Component Navigation and Button Redundancy Issue Analysis
 
-발생 상황:
-온보딩(Onboarding) 페이지에 접근했을 때, 여러 폼 컴포넌트가 중첩되어 렌더링되면서 에러가 발생했습니다.
+### Problem 1: Onboarding Navigation Issue
 
-예상 원인:
-`Onboarding.tsx` 컴포넌트는 `FormProvider`를 사용해 폼 상태를 관리하며, 자체적으로 `<form>` 태그를 가지고 있습니다. 이 컴포넌트가 렌더링하는 자식 컴포넌트인 `BasicInfoForm.tsx`, `HealthInfoForm.tsx`, `GoalSettingForm.tsx` 또한 각각의 파일 내에 자체적인 `<form>` 태그를 포함하고 있습니다. 이로 인해 HTML 구조상 `<form>` 안에 또 다른 `<form>`이 중첩되는 문제가 발생했으며, 이는 유효하지 않은 HTML 구조이므로 Next.js의 하이드레이션 과정에서 서버와 클라이언트의 DOM 트리가 불일치하는 에러를 유발했습니다.
+*   **Error Message:** "현재 onboarding에서 첫 페이지의 내용을 모두 채우고 다음 버튼을 눌러도 HealthInfoForm으로 넘어가지 않습니다." (Currently, even if all the contents of the first page in onboarding are filled and the next button is pressed, it does not proceed to HealthInfoForm.)
+*   **Expected Behavior:** After filling out `BasicInfoForm` with valid data and clicking "Next", the `Onboarding` component should transition to `HealthInfoForm`.
+*   **Observed Behavior:** The `Onboarding` component remains on `BasicInfoForm` even after valid input and clicking "Next".
+*   **Root Cause:** The `onboardingSchema` in `src/features/onboarding/model/onboarding.schema.ts` had an incorrect structure for `healthConditions`. It was defined as an object containing `allergies`, `chronicDiseases`, and `dietPreferences`, while the `HealthInfoForm` was expecting `healthConditions` and `allergies` as direct array fields. This mismatch in the schema definition for `healthConditions` was causing validation to fail silently, preventing the `handleNext` function in `Onboarding.tsx` from proceeding to the next step.
+*   **Resolution:** Modified `onboarding.schema.ts` to correctly define `healthConditions` and `allergies` as `z.array(z.string())`, aligning with the data structure expected by `HealthInfoForm`.
 
-해결 방안:
-리팩토링 아키텍처에 따라, 폼 제출과 상태 관리는 부모 컴포넌트인 `Onboarding.tsx`가 중앙에서 처리해야 합니다. 따라서 자식 컴포넌트들(`BasicInfoForm`, `HealthInfoForm`, `GoalSettingForm`)은 더 이상 독립적인 폼으로 기능할 필요가 없습니다.
+### Problem 2: Redundant "Next" Buttons
 
-1.  `BasicInfoForm.tsx`, `HealthInfoForm.tsx`, `GoalSettingForm.tsx` 파일에서 최상위를 감싸고 있는 `<form>` 태그를 제거합니다.
-2.  대신, 내용이 잘리지 않도록 최상위 요소를 `<div>` 또는 `<React.Fragment>`로 변경하여 UI 구조를 유지합니다.
+*   **Error Message:** "그리고 현재 페이지 안에 다음 버튼이 2개가 있습니다. 둘 중 하나만 동작하게 해주세요." (And there are two "Next" buttons on the current page. Please make only one of them work.)
+*   **Expected Behavior:** Only the navigation buttons provided by the parent `Onboarding` component should be visible and functional. Child forms should not have their own navigation buttons.
+*   **Observed Behavior:** The `BasicInfoForm` component was rendering its own "다음" (Next) button in addition to the one provided by the `Onboarding` component.
+*   **Root Cause:** The `BasicInfoForm.tsx` component included a `<button type="submit" ...>다음</button>` element, which is redundant since the `Onboarding.tsx` parent component is responsible for rendering and controlling the navigation buttons.
+*   **Resolution:** Removed the redundant "다음" button from `BasicInfoForm.tsx`. Verified that `HealthInfoForm.tsx` and `GoalSettingForm.tsx` do not contain their own navigation buttons.
