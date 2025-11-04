@@ -1,11 +1,11 @@
 아래의 일일 명령은 지금 지시할 명령입니다. 아래 문장을 실행해주세요.
 <!-- 일일 명령 시작 -->
 
-현재 onboarding에서 첫 페이지의 내용을 모두 채우고 다음 버튼을 눌러도 HealthInfoForm으로 넘어가지 않습니다.
-원인을 분석하여 해결방안을 제시하여 error-analyze.md 파일에 작성해주세요.
+현재 HealthInfoForm의 동작이 원활하지 않습니다. 대표적으로 "해당사항 없음"을 누르면 다른 버튼이 꺼지는 처리가 동작하지 않습니다.
 
-그리고 현재 페이지 안에 다음 버튼이 2개가 있습니다. 둘 중 하나만 동작하게 해주세요.
-
+"gemini/test/test-format.md" 파일은 테스트 문서입니다. 해당 파일 안에 있는 기능을 구현해주세요.
+"onboarding/ui/HealthInfoForm.test.tsx"의 테스트를 실행하여, 모든 테스트가 정상적으로 통과하도록 만들어주세요.
+유효성 검사 및 확인은 "onboarding/model/onboarding.schema.ts"의 zod를 사용해주세요.
 
 <!-- 일일 명령 종료 -->
 

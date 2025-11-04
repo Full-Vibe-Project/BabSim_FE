@@ -1,44 +1,44 @@
 ### **1. 사용자 스토리 (User Story)**
 
 - **As a**: 신규 사용자
-- **I want to**: 나의 건강 목표를 설정하고, 내 선택에 따라 폼이 지능적으로 반응하는 것을 확인하고 싶습니다
-- **So that**: 불필요한 정보를 입력하지 않고, 명확한 안내에 따라 쉽고 빠르게 온보딩을 완료할 수 있습니다
+- **I want to**: 나의 기저질환과 식품 알레르기를 쉽고 명확하게 선택하고 싶습니다
+- **So that**: 내 건강 상태에 대한 정확한 정보를 제공하여 다음 단계로 넘어갈 수 있습니다
 
 ### **2. 인수 조건 (Acceptance Criteria)**
 
-> 사용자 스토리를 성공으로 판단하기 위한 비즈니스 규칙입니다. 통합 테스트에서는 컴포넌트의 동적인 UI 동작과 상태 변화를 검증합니다.
+> 사용자 스토리를 성공으로 판단하기 위한 비즈니스 규칙입니다. 통합 테스트에서는 컴포넌트의 UI 동작과 상태 변화를 검증합니다.
 > 
-- `AC-1`: '목표 유형' 중 하나를 선택하면, 해당 옵션만 선택된 상태로 표시되어야 한다 (라디오 버튼 동작).
-- `AC-2`: '목표 유형'으로 '체중 관리'를 선택했을 때만 '현재 체중'과 '목표 체중' 입력 필드가 활성화(또는 표시)되어야 한다.
-- `AC-3`: '목표 체중'이 '현재 체중'과 동일하게 입력되면, "목표 체중은 현재 체중과 같을 수 없습니다."라는 에러 메시지가 표시되어야 한다.
-- `AC-4`: '목표 유형', '목표 기간' 등 모든 필수 필드가 유효하게 입력되기 전까지 '시작하기' 버튼은 비활성화 상태여야 한다.
-- `AC-5`: 선택된 목표 유형에 맞는 모든 필수 필드가 유효하게 입력되면, '시작하기' 버튼이 활성화되어야 한다.
+- `AC-1`: 사용자는 여러 개의 기저질환(또는 알레르기) 항목을 동시에 선택할 수 있다.
+- `AC-2`: '해당사항 없음' 체크박스는 다른 일반 항목들과 상호 배타적으로 동작해야 한다. 즉, '해당사항 없음'이 체크되면 다른 모든 항목은 체크 해제되어야 하며, 다른 항목이 체크되면 '해당사항 없음'은 체크 해제되어야 한다.
+- `AC-3`: 이 페이지의 모든 입력은 선택사항이므로, 아무것도 선택하지 않은 초기 상태에서도 '다음' 버튼은 항상 활성화 상태여야 한다.
 
 ### **3. 테스트 케이스 (Test Cases)**
 
 > 인수 조건을 검증하기 위한 구체적인 테스트 시나리오입니다. (Vitest + React Testing Library 코드의 설계도)
 > 
 
-### **[통합 테스트] `GoalSettingForm` 컴포넌트**
+### **[통합 테스트] `HealthInfoForm` 컴포넌트**
 
-- **`describe`: 목표 유형 선택 (Goal Type Selection)**
-    - `it('(AC-1) should select only one goal type at a time, like a radio button')`
-    (라디오 버튼처럼 한 번에 하나의 목표 유형만 선택해야 한다)
-    - `it('(AC-2) should enable the weight input fields only when "Weight Management" is selected')`
-    ('체중 관리'가 선택되었을 때만 체중 입력 필드를 활성화해야 한다)
-    - `it('(AC-2) should disable the weight input fields when a goal type other than "Weight Management" is selected')`
-    ('체중 관리' 외 다른 목표 유형이 선택되면 체중 입력 필드를 비활성화해야 한다)
-- **`describe`: 동적 유효성 검사 (Dynamic Validation)**
-    - `it('(AC-3) should display an error message if the target weight is the same as the current weight')`
-    (목표 체중이 현재 체중과 같을 경우 에러 메시지를 표시해야 한다)
-    - `it('should remove the error message when the target weight is changed to be different')`
-    (목표 체중이 다른 값으로 변경되면 에러 메시지를 제거해야 한다)
-- **`describe`: '시작하기' 버튼 활성화 로직 (Submit Button Activation Logic)**
-    - `it('(AC-4) should render the "Start" button as disabled initially')`
-    (초기 렌더링 시 '시작하기' 버튼은 비활성화 상태여야 한다)
-    - `it('(AC-4) should keep the "Start" button disabled if "Weight Management" is selected but weight fields are invalid')`
-    ('체중 관리' 선택 후 체중 필드가 유효하지 않으면 '시작하기' 버튼은 비활성화 상태를 유지해야 한다)
-    - `it('(AC-5) should enable the "Start" button when all required fields for the "Weight Management" goal are validly filled')`
-    ('체중 관리' 목표에 대한 모든 필수 필드가 유효하게 채워지면 '시작하기' 버튼을 활성화해야 한다)
-    - `it('(AC-5) should enable the "Start" button when a goal type other than "Weight Management" is selected and all other required fields are filled')`
-    ('체중 관리' 외 다른 목표 유형 선택 후 나머지 필수 필드가 채워지면 '시작하기' 버튼을 활성화해야 한다)
+- **`describe`: 다중 선택 기능 (Multiple Selections)**
+    - `it('(AC-1) should allow checking multiple condition checkboxes simultaneously')`
+    (여러 개의 질환 체크박스를 동시에 선택(체크)할 수 있어야 한다)
+        - **Act**: '당뇨병' 체크박스를 클릭한다.
+        - **Act**: '고혈압' 체크박스를 클릭한다.
+        - **Assert**: '당뇨병'과 '고혈압' 체크박스가 모두 체크된 상태인지 확인한다.
+- **`describe`: '해당사항 없음' 상호작용 ('Not Applicable' Interaction)**
+    - `it('(AC-2) should uncheck all other condition checkboxes when "Not Applicable" is checked')`
+    (다른 질환들이 체크된 상태에서 '해당사항 없음'을 체크하면, 다른 모든 질환 체크박스가 해제되어야 한다)
+        - **Arrange**: '당뇨병', '고혈압'이 체크된 상태로 시작한다.
+        - **Act**: '해당사항 없음' 체크박스를 클릭한다.
+        - **Assert**: '당뇨병'과 '고혈압' 체크박스가 모두 체크 해제되었는지 확인한다.
+        - **Assert**: '해당사항 없음' 체크박스는 체크된 상태인지 확인한다.
+    - `it('(AC-2) should uncheck the "Not Applicable" checkbox when any other condition is checked')`
+    ('해당사항 없음'이 체크된 상태에서 다른 질환을 체크하면, '해당사항 없음' 체크박스가 해제되어야 한다)
+        - **Arrange**: '해당사항 없음'이 체크된 상태로 시작한다.
+        - **Act**: '당뇨병' 체크박스를 클릭한다.
+        - **Assert**: '해당사항 없음' 체크박스가 체크 해제되었는지 확인한다.
+        - **Assert**: '당뇨병' 체크박스는 체크된 상태인지 확인한다.
+- **`describe`: 네비게이션 버튼 상태 (Navigation Button State)**
+    - `it('(AC-3) should render the "Next" button as enabled by default')`
+    (기본적으로 '다음' 버튼은 활성화된 상태로 렌더링되어야 한다)
+        - **Assert**: '다음' 버튼이 `disabled` 속성을 가지고 있지 않은지 확인한다.

@@ -1,7 +1,7 @@
-작업 한줄 요약 : TDD 방식으로 온보딩 플로우를 리팩토링하고, 관련 테스트 코드를 작성 및 수정했습니다.
+작업 한줄 요약 : HealthInfoForm 컴포넌트의 '해당사항 없음' 버튼 동작 버그 수정 및 테스트 코드 업데이트
 상세 변경 내용(5줄 내외) : 
-- `onboarding.schema.ts`에 통합 Zod 스키마를 정의하고, 단위 테스트로 검증했습니다.
-- `Onboarding.tsx` 컴포넌트에서 `react-hook-form`의 `FormProvider`와 `useForm`을 사용하여 중앙 폼 상태 관리를 구현했습니다.
-- `BasicInfoForm`, `HealthInfoForm`, `GoalSettingForm`을 `useFormContext`를 사용하도록 리팩토링했습니다.
-- `Onboarding.test.tsx`에 단계별 폼 렌더링, 네비게이션, 데이터 유지, 최종 제출에 대한 통합 테스트 케이스를 작성했습니다.
-- `e2e/onboarding.spec.ts` E2E 테스트 파일을 올바른 위치로 이동했습니다.
+- HealthInfoForm.tsx에서 '해당사항 없음' 옵션이 다른 옵션들과 상호 배타적으로 동작하지 않는 버그를 수정했습니다.
+- 코드 중복을 줄이고 유지보수성을 높이기 위해 HealthOptions라는 재사용 가능한 컴포넌트를 새로 만들었습니다.
+- 새로운 컴포넌트는 알레르기, 만성 질환, 식단 선호도 선택 로직을 캡슐화합니다.
+- gemini/test/test-format.md의 요구사항에 맞춰 HealthInfoForm.test.tsx를 업데이트하여 테스트 커버리지를 개선했습니다.
+- 테스트가 Vitest에서 모두 통과하는 것을 확인했습니다.
