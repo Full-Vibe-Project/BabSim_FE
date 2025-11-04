@@ -49,8 +49,8 @@ const GoalSettingForm = () => {
           />
         </div>
       </div>
-      {errors.targetWeight && <p className="text-sm text-red-600 mt-1">{errors.targetWeight.message}</p>}
-      {errors.currentWeight && <p className="text-sm text-red-600 mt-1">{errors.currentWeight.message}</p>}
+      {errors.targetWeight?.message ? <p className="text-sm text-red-600 mt-1">{errors.targetWeight.message as string}</p> : null}
+      {errors.currentWeight?.message ? <p className="text-sm text-red-600 mt-1">{errors.currentWeight.message as string}</p> : null}
 
       <div className="space-y-2">
         <label htmlFor="weeklyGoal" className="text-sm font-medium text-gray-700 dark:text-gray-300">주간 목표</label>

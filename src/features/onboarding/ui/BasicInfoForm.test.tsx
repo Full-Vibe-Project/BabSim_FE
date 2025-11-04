@@ -17,7 +17,6 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
       height: 0,
       weight: 0,
       healthConditions: { allergies: [], chronicDiseases: [], dietPreferences: [] },
-      allergies: [],
       goalType: 'WEIGHT_MANAGEMENT',
       currentWeight: 0,
       targetWeight: 0,
