@@ -8,8 +8,11 @@ describe('onboardingSchema', () => {
     birthdate: '1995-10-26',
     height: 165,
     weight: 55,
-    healthConditions: [],
-    allergies: [],
+    healthConditions: {
+        allergies: [],
+        chronicDiseases: [],
+        dietPreferences: [],
+    },
     goalType: 'WEIGHT_MANAGEMENT',
     currentWeight: 55,
     targetWeight: 50,
@@ -17,7 +20,7 @@ describe('onboardingSchema', () => {
     exerciseCount: 3,
   };
 
-  it('should successfully validate a complete and valid data object for the \'WEIGHT_MANAGEMENT\' goal', () => {
+  it("should successfully validate a complete and valid data object for the 'WEIGHT_MANAGEMENT' goal", () => {
     const result = onboardingSchema.safeParse(baseValidData);
     expect(result.success).toBe(true);
   });
@@ -31,7 +34,7 @@ describe('onboardingSchema', () => {
     }
   });
 
-  it('should fail validation if targetWeight is the same as currentWeight when goalType is \'WEIGHT_MANAGEMENT\'', () => {
+  it("should fail validation if targetWeight is the same as currentWeight when goalType is 'WEIGHT_MANAGEMENT'", () => {
     const invalidData = { ...baseValidData, targetWeight: 55 };
     const result = onboardingSchema.safeParse(invalidData);
     expect(result.success).toBe(false);
@@ -40,12 +43,11 @@ describe('onboardingSchema', () => {
     }
   });
 
-  it('should pass validation if goalType is not \'WEIGHT_MANAGEMENT\' even if weights are not provided', () => {
+  it("should pass validation if goalType is not 'WEIGHT_MANAGEMENT' even if weights are not provided", () => {
+    const { currentWeight, targetWeight, ...rest } = baseValidData;
     const validData = {
-        ...baseValidData,
+        ...rest,
         goalType: 'DIET_MANAGEMENT',
-        currentWeight: undefined,
-        targetWeight: undefined,
     };
     const result = onboardingSchema.safeParse(validData);
     expect(result.success).toBe(true);
