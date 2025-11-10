@@ -1,0 +1,1 @@
+error/error-msg.md 파일을 읽고 GoalSettingForm.tsx 파일을 수정해주세요.

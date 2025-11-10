@@ -1,6 +1,5 @@
-작업 한줄 요약 : `03-pull-request-rules.md` 템플릿을 기반으로 PR 메시지를 재작성했습니다.
+작업 한줄 요약 : GoalSettingForm.tsx 파일의 타입 에러 재수정
 상세 변경 내용(5줄 내외) : 
-- `gemini/conventions/01-git/03-pull-request-rules.md` 파일을 읽어 PR 템플릿을 확인했습니다.
-- `git diff`를 사용하여 `main` 브랜치와의 변경사항을 다시 확인했습니다.
-- 새로운 템플릿에 맞춰 PR 제목, 타입, 관련 이슈, 개요, 작업 상세 내용, 테스트 방법 등의 항목을 채웠습니다.
-- 완성된 PR 메시지를 `gemini/output.md` 파일에 덮어썼습니다.
+- GoalSettingForm.tsx 파일에서 `FieldError` 객체가 `ReactNode`에 할당될 수 없는 타입 에러가 계속 발생하여, 에러 메시지 렌더링 로직을 수정했습니다.
+- 기존의 `&&` 연산자를 사용한 조건부 렌더링 방식에서, 삼항 연산자를 사용하여 `errors.fieldName?.message`가 있을 경우에만 `<p>` 태그를 렌더링하도록 변경했습니다.
+- 이 방법은 `FieldError` 객체가 JSX에 직접 렌더링될 가능성을 원천적으로 차단하여 타입 에러를 해결합니다.
