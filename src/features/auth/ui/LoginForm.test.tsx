@@ -3,64 +3,71 @@ import userEvent from "@testing-library/user-event";
 import LoginForm from "./LoginForm";
 
 describe("LoginForm", () => {
-  // Test Case 1: 성공
-  it("사용자가 유효한 이메일과 비밀번호를 입력하고 로그인 버튼을 클릭하면, 환영 메시지를 보여준다", async () => {
-    // Arrange
+  it("초기 렌더링: 로고, 타이틀, 소셜 버튼 2개, 이메일/비밀번호 입력, 로그인 버튼, 보조 링크가 보여야 한다", () => {
     render(<LoginForm />);
 
-    // Act
-    await userEvent.type(screen.getByLabelText("이메일"), "test@example.com");
-    await userEvent.type(screen.getByLabelText("비밀번호"), "password123");
-    await userEvent.click(screen.getByRole("button", { name: "로그인" }));
-
-    // Assert
-    expect(await screen.findByText("환영합니다!")).toBeInTheDocument();
+    expect(screen.getByText("BabSim")).toBeInTheDocument();
+    expect(screen.getByText("Google로 계속하기")).toBeInTheDocument();
+    expect(screen.getByText("카카오톡으로 계속하기")).toBeInTheDocument();
+    expect(screen.getByLabelText("이메일")).toBeInTheDocument();
+    expect(screen.getByLabelText("비밀번호")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /로그인/ })).toBeInTheDocument();
+    expect(screen.getByText("비밀번호를 잊으셨나요?")).toBeInTheDocument();
+    expect(screen.getByText("회원가입")).toBeInTheDocument();
   });
 
-  // Test Case 2-1: 실패 (유효성 - 이메일)
-  it("사용자가 유효하지 않은 이메일 형식으로 로그인을 시도하면, 에러 메시지를 보여준다", async () => {
-    // Arrange
+  it("버튼 상태: 입력이 비어있을 때 로그인 버튼은 비활성화되어야 한다, 유효한 이메일+비밀번호 입력 시 활성화된다", async () => {
+    render(<LoginForm />);
+    const loginBtn = screen.getByRole("button", {
+      name: /로그인/,
+    }) as HTMLButtonElement;
+    expect(loginBtn).toBeDisabled();
+
+    await userEvent.type(screen.getByLabelText("이메일"), "invalid-email");
+    await userEvent.type(screen.getByLabelText("비밀번호"), "pass");
+    expect(loginBtn).toBeDisabled();
+
+    await userEvent.clear(screen.getByLabelText("이메일"));
+    await userEvent.type(screen.getByLabelText("이메일"), "test@example.com");
+    await userEvent.clear(screen.getByLabelText("비밀번호"));
+    await userEvent.type(screen.getByLabelText("비밀번호"), "password123");
+    expect(loginBtn).toBeEnabled();
+  });
+
+  it("유효성 피드백: 잘못된 이메일/짧은 비밀번호 제출 시 에러가 보인다", async () => {
     render(<LoginForm />);
 
-    // Act
-    await userEvent.type(screen.getByLabelText("이메일"), "test");
-    await userEvent.click(screen.getByRole("button", { name: "로그인" }));
-
-    // Assert
+    await userEvent.type(screen.getByLabelText("이메일"), "bad");
+    await userEvent.click(screen.getByRole("button", { name: /로그인/ }));
     expect(
       await screen.findByText("유효한 이메일 형식이 아닙니다.")
     ).toBeInTheDocument();
-  });
 
-  // Test Case 2-2: 실패 (유효성 - 비밀번호)
-  it("사용자가 8자 미만의 비밀번호로 로그인을 시도하면, 에러 메시지를 보여준다", async () => {
-    // Arrange
-    render(<LoginForm />);
-
-    // Act
-    await userEvent.type(screen.getByLabelText("비밀번호"), "1234567");
-    await userEvent.click(screen.getByRole("button", { name: "로그인" }));
-
-    // Assert
+    await userEvent.clear(screen.getByLabelText("이메일"));
+    await userEvent.type(screen.getByLabelText("이메일"), "test@example.com");
+    await userEvent.clear(screen.getByLabelText("비밀번호"));
+    await userEvent.type(screen.getByLabelText("비밀번호"), "123");
+    await userEvent.click(screen.getByRole("button", { name: /로그인/ }));
     expect(
       await screen.findByText("비밀번호는 8자 이상이어야 합니다.")
     ).toBeInTheDocument();
   });
 
-  // Test Case 3: 실패 (인증)
-  it("사용자가 잘못된 자격 증명으로 로그인을 시도하면, 에러 메시지를 보여준다", async () => {
-    // Arrange
+  it("엔터키 제출: 비밀번호 입력에서 Enter를 누르면 제출된다 (유효 시)", async () => {
     render(<LoginForm />);
-    // Note: API 모킹이 필요할 수 있습니다. 지금은 실패 케이스를 가정합니다.
+    await userEvent.type(screen.getByLabelText("이메일"), "test@example.com");
+    await userEvent.type(
+      screen.getByLabelText("비밀번호"),
+      "password123{enter}"
+    );
+    expect(await screen.findByText("환영합니다!")).toBeInTheDocument();
+  });
 
-    // Act
-    await userEvent.type(screen.getByLabelText("이메일"), "wrong@example.com");
-    await userEvent.type(screen.getByLabelText("비밀번호"), "wrongpassword");
-    await userEvent.click(screen.getByRole("button", { name: "로그인" }));
-
-    // Assert
-    expect(
-      await screen.findByText("이메일 또는 비밀번호가 올바르지 않습니다.")
-    ).toBeInTheDocument();
+  it("링크 경로 확인: 비밀번호 찾기 및 회원가입 링크가 올바른 href를 가짐", () => {
+    render(<LoginForm />);
+    const forgot = screen.getByText("비밀번호를 잊으셨나요?").closest("a");
+    const signup = screen.getByText("회원가입").closest("a");
+    expect(forgot).toHaveAttribute("href", "/forgot-password");
+    expect(signup).toHaveAttribute("href", "/signup");
   });
 });
