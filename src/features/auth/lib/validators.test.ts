@@ -8,17 +8,17 @@ describe("validateEmail", () => {
   it("should return 'required' error for empty email", () => {
     expect(validateEmail("")).toEqual({
       isSuccess: false,
-      msg: "이메일은 필수 입력 항목이다.",
+      msg: "이메일을 입력해주세요.",
     });
   });
   it("should return 'invalid format' error for malformed email", () => {
     expect(validateEmail("abc@@")).toEqual({
       isSuccess: false,
-      msg: "유효한 이메일 형식을 입력해달라.",
+      msg: "유효한 이메일 형식이 아닙니다.",
     });
     expect(validateEmail("abc")).toEqual({
       isSuccess: false,
-      msg: "유효한 이메일 형식을 입력해달라.",
+      msg: "유효한 이메일 형식이 아닙니다.",
     });
   });
 });
@@ -37,17 +37,17 @@ describe("validatePassword", () => {
   it("should return 'required' error for empty password", () => {
     expect(validatePassword("")).toEqual({
       isSuccess: false,
-      msg: "비밀번호는 필수 입력 항목이다.",
+      msg: "비밀번호를 입력해주세요.",
     });
   });
   it("should return 'minLength' error when shorter than min", () => {
     expect(validatePassword("abcde")).toEqual({
       isSuccess: false,
-      msg: "비밀번호는 최소 8자 이상이어야 한다.",
+      msg: "비밀번호는 8자 이상이어야 합니다.",
     });
     expect(validatePassword("abcde", 10)).toEqual({
       isSuccess: false,
-      msg: "비밀번호는 최소 10자 이상이어야 한다.",
+      msg: "비밀번호는 10자 이상이어야 합니다.",
     });
   });
 });

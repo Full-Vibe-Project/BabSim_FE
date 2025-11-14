@@ -1,6 +1,11 @@
 "use client";
 
 import React from "react";
+import {
+  validateEmail,
+  validatePassword,
+  canEnableSubmit,
+} from "../../lib/validators";
 
 type Props = {
   email: string;
@@ -19,8 +24,9 @@ export default function CredentialsForm({
   onSubmit,
   isSubmitting = false,
 }: Props) {
-  const isValidEmail = /\S+@\S+\.\S+/.test(email);
-  const isDisabled = !isValidEmail || password.length === 0 || isSubmitting;
+  const emailResult = validateEmail(email);
+  const pwResult = validatePassword(password);
+  const isDisabled = !canEnableSubmit(email, password) || isSubmitting;
 
   return (
     <form className="flex flex-col space-y-[18px]" onSubmit={onSubmit}>
@@ -41,6 +47,9 @@ export default function CredentialsForm({
           onChange={(e) => setEmail(e.target.value)}
           className="w-full h-[54px] rounded-[12px] border border-[#E7E3DA] bg-[#FAF8F3] px-4 text-[15px] text-[#2B2B2B] placeholder:text-[#B8B3AA] focus:outline-none focus:ring-2 focus:ring-[#D7D0C2]"
         />
+        {email && !emailResult.isSuccess && (
+          <div className="text-xs text-red-600 mt-1">{emailResult.msg}</div>
+        )}
       </div>
 
       <div className="flex flex-col gap-[8px]">
@@ -60,6 +69,9 @@ export default function CredentialsForm({
           onChange={(e) => setPassword(e.target.value)}
           className="w-full h-[54px] rounded-[12px] border border-[#E7E3DA] bg-[#FAF8F3] px-4 text-[15px] text-[#2B2B2B] placeholder:text-[#B8B3AA] focus:outline-none focus:ring-2 focus:ring-[#D7D0C2]"
         />
+        {password && !pwResult.isSuccess && (
+          <div className="text-xs text-red-600 mt-1">{pwResult.msg}</div>
+        )}
       </div>
 
       <button
