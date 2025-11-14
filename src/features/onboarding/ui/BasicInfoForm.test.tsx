@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -22,7 +22,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
       targetWeight: 0,
       weeklyGoal: 0,
       exerciseCount: 0,
-    }
+    },
   });
   return <FormProvider {...methods}>{children}</FormProvider>;
 };
@@ -32,52 +32,52 @@ describe('BasicInfoForm', () => {
     render(
       <TestWrapper>
         <BasicInfoForm />
-      </TestWrapper>
+      </TestWrapper>,
     );
     expect(screen.getByLabelText(/이름/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/생년월일/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/키/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/몸무게/i)).toBeInTheDocument();
-    expect(screen.getByLabelText('여성')).toBeInTheDocument();
-    expect(screen.getByLabelText('남성')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '여성' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '남성' })).toBeInTheDocument();
   });
 
   it('should select "Female" and deselect "Male" when the "Female" button is clicked', async () => {
     render(
       <TestWrapper>
         <BasicInfoForm />
-      </TestWrapper>
+      </TestWrapper>,
     );
-    const femaleRadio = screen.getByLabelText('여성');
-    const maleRadio = screen.getByLabelText('남성');
+    const femaleButton = screen.getByRole('button', { name: '여성' });
+    const maleButton = screen.getByRole('button', { name: '남성' });
 
-    await userEvent.click(femaleRadio);
+    await userEvent.click(femaleButton);
 
-    expect(femaleRadio).toBeChecked();
-    expect(maleRadio).not.toBeChecked();
+    expect(femaleButton).toHaveClass('bg-custom-brown-light text-white');
+    expect(maleButton).not.toHaveClass('bg-custom-brown-light text-white');
   });
 
   it('should select "Male" and deselect "Female" when the "Male" button is clicked after "Female" was selected', async () => {
     render(
       <TestWrapper>
         <BasicInfoForm />
-      </TestWrapper>
+      </TestWrapper>,
     );
-    const femaleRadio = screen.getByLabelText('여성');
-    const maleRadio = screen.getByLabelText('남성');
+    const femaleButton = screen.getByRole('button', { name: '여성' });
+    const maleButton = screen.getByRole('button', { name: '남성' });
 
-    await userEvent.click(femaleRadio);
-    await userEvent.click(maleRadio);
+    await userEvent.click(femaleButton);
+    await userEvent.click(maleButton);
 
-    expect(maleRadio).toBeChecked();
-    expect(femaleRadio).not.toBeChecked();
+    expect(maleButton).toHaveClass('bg-custom-brown-light text-white');
+    expect(femaleButton).not.toHaveClass('bg-custom-brown-light text-white');
   });
 
   it('should automatically format numeric input like "20240919" into "2024-09-19"', async () => {
     render(
       <TestWrapper>
         <BasicInfoForm />
-      </TestWrapper>
+      </TestWrapper>,
     );
     const birthdateInput = screen.getByLabelText(/생년월일/i);
 
@@ -90,33 +90,37 @@ describe('BasicInfoForm', () => {
     render(
       <TestWrapper>
         <BasicInfoForm />
-      </TestWrapper>
+      </TestWrapper>,
     );
     const nameInput = screen.getByLabelText(/이름/i);
 
     await userEvent.type(nameInput, 'a'.repeat(31));
-    fireEvent.blur(nameInput);
+    await userEvent.tab(); // blur
 
     expect(await screen.findByText('이름은 30자 이하로 입력해주세요.')).toBeInTheDocument();
   });
 
   it('should remove the error message when the invalid name is corrected', async () => {
+    const user = userEvent.setup();
     render(
       <TestWrapper>
         <BasicInfoForm />
-      </TestWrapper>
+      </TestWrapper>,
     );
     const nameInput = screen.getByLabelText(/이름/i);
 
-    await userEvent.type(nameInput, 'a'.repeat(31));
-    fireEvent.blur(nameInput);
+    await user.type(nameInput, 'a'.repeat(31));
+    await user.tab();
 
-    expect(await screen.findByText('이름은 30자 이하로 입력해주세요.')).toBeInTheDocument();
+    const errorMessage = await screen.findByText('이름은 30자 이하로 입력해주세요.');
+    expect(errorMessage).toBeInTheDocument();
 
-    await userEvent.clear(nameInput);
-    await userEvent.type(nameInput, '홍길동');
-    fireEvent.blur(nameInput);
+    await user.clear(nameInput);
+    await user.type(nameInput, '홍길동');
+    await user.tab();
 
-    expect(screen.queryByText('이름은 30자 이하로 입력해주세요.')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('이름은 30자 이하로 입력해주세요.')).not.toBeInTheDocument();
+    });
   });
 });

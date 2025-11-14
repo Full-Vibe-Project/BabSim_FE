@@ -1,82 +1,127 @@
 'use client';
 
 import React from 'react';
-import { useFormContext, Controller, Control } from 'react-hook-form';
-import { OnboardingData } from '../model/onboarding.schema';
+import { useFormContext, Controller } from 'react-hook-form';
+import type { OnboardingData } from '../model/onboarding.schema';
 
-const ALLERGY_OPTIONS = ['갑각류', '견과류', '유제품', '밀', '해당사항 없음'];
-const CHRONIC_DISEASE_OPTIONS = ['당뇨', '고혈압', '신장질환', '해당사항 없음'];
-const DIET_PREFERENCE_OPTIONS = ['저탄수화물', '고단백', '저지방', '채식', '해당사항 없음'];
+const CHRONIC_DISEASE_OPTIONS = ['당뇨병', '고혈압', '고지혈증', '갑상선 질환', '통풍', '신장 질환'] as const;
+const ALLERGY_OPTIONS = [
+  '우유/유제품',
+  '계란',
+  '땅콩',
+  '갑각류',
+  '견과류',
+  '밀',
+  '콩',
+  '생선',
+] as const;
+const NONE_OPTION = '해당사항 없음';
 
-interface HealthOptionsProps {
-  name: keyof OnboardingData['healthConditions'];
+type CheckboxGroupProps = {
+  name: 'healthConditions.chronicDiseases' | 'healthConditions.allergies';
   label: string;
   options: readonly string[];
-}
+};
 
-const HealthOptions: React.FC<HealthOptionsProps> = ({ name, label, options }) => {
-  const { control } = useFormContext<OnboardingData>();
+const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ name, label, options }) => {
+  const { control, setValue, getValues } = useFormContext<OnboardingData>();
 
-  const handleSelection = (currentValue: string[], option: string, onChange: (value: string[]) => void) => {
-    const NONE_OPTION = '해당사항 없음';
-    let newSelection: string[];
+  const handleSelection = (option: string) => {
+    const currentValue = getValues(name) || [];
+    let newValue: string[];
 
     if (option === NONE_OPTION) {
-      newSelection = currentValue.includes(NONE_OPTION) ? [] : [NONE_OPTION];
+      newValue = currentValue.includes(NONE_OPTION) ? [] : [NONE_OPTION];
     } else {
       if (currentValue.includes(option)) {
-        newSelection = currentValue.filter((item) => item !== option);
+        newValue = currentValue.filter((item) => item !== option);
       } else {
-        newSelection = [...currentValue.filter((item) => item !== NONE_OPTION), option];
+        newValue = [...currentValue.filter((item) => item !== NONE_OPTION), option];
       }
     }
-    onChange(newSelection);
+    setValue(name, newValue, { shouldDirty: true, shouldValidate: true });
   };
 
   return (
     <Controller
-      name={`healthConditions.${name}`}
+      name={name}
       control={control}
       defaultValue={[]}
       render={({ field }) => (
-        <fieldset className="space-y-2">
-          <legend className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</legend>
-          <div className="flex flex-wrap gap-2">
+        <div className="space-y-4">
+          <label className="block text-sm font-medium text-stone-700">{label}</label>
+          <div className="grid grid-cols-3 gap-3">
             {options.map((option) => (
-              <button
+              <label
                 key={option}
-                type="button"
-                onClick={() => handleSelection(field.value || [], option, field.onChange)}
-                className={`px-4 py-2 rounded-full border ${
-                  (field.value || []).includes(option)
-                    ? 'bg-blue-500 text-white border-blue-500'
-                    : 'bg-white text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
-                }`}
+                className={`flex items-center cursor-pointer bg-white p-3.5 px-5 rounded-lg shadow-sm transition-all duration-200
+                  ${
+                    field.value?.includes(option) && !field.value?.includes(NONE_OPTION)
+                      ? 'ring-2 ring-custom-brown-dark text-custom-brown-dark font-semibold'
+                      : 'text-stone-700'
+                  }
+                  ${field.value?.includes(NONE_OPTION) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}
+                `}
               >
-                {option}
-              </button>
+                <input
+                  type="checkbox"
+                  className="hidden"
+                  checked={field.value?.includes(option) || false}
+                  onChange={() => handleSelection(option)}
+                />
+                <span className="text-sm">{option}</span>
+              </label>
             ))}
           </div>
-        </fieldset>
+          <label
+            className={`flex items-center cursor-pointer bg-white p-3.5 px-5 rounded-lg shadow-sm transition-all duration-200
+              ${field.value?.includes(NONE_OPTION) ? 'ring-2 ring-custom-brown-dark text-custom-brown-dark font-semibold' : 'text-stone-700'}
+            `}
+          >
+            <input
+              type="checkbox"
+              className="hidden"
+              checked={field.value?.includes(NONE_OPTION) || false}
+              onChange={() => handleSelection(NONE_OPTION)}
+            />
+            <span className="text-sm">{NONE_OPTION}</span>
+          </label>
+        </div>
       )}
     />
   );
 };
 
 const HealthInfoForm = () => {
-  return (
-    <div className="max-w-md mx-auto p-8 bg-white dark:bg-gray-900 rounded-xl shadow-lg space-y-8">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">건강 정보 입력</h1>
-        <p className="text-gray-500 dark:text-gray-400">맞춤 식단 추천을 위해 알려주세요</p>
-      </div>
+  const { register } = useFormContext<OnboardingData>();
 
-      <div className="space-y-6">
-        <HealthOptions name="allergies" label="알러지" options={ALLERGY_OPTIONS} />
-        <HealthOptions name="chronicDiseases" label="만성 질환" options={CHRONIC_DISEASE_OPTIONS} />
-        <HealthOptions name="dietPreferences" label="식단 선호" options={DIET_PREFERENCE_OPTIONS} />
+  return (
+    <main className="flex-grow pt-8 pb-12">
+      <div className="space-y-10">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-stone-900">건강 정보</h1>
+          <p className="text-stone-600">안전한 식단 관리를 위해 건강 상태를 알려주세요.</p>
+        </div>
+
+        <div className="space-y-8">
+          <CheckboxGroup name="healthConditions.chronicDiseases" label="기저질환" options={CHRONIC_DISEASE_OPTIONS} />
+          <CheckboxGroup name="healthConditions.allergies" label="식품 알레르기" options={ALLERGY_OPTIONS} />
+
+          <div>
+            <label htmlFor="medication" className="block text-sm font-medium text-stone-700 mb-2">
+              현재 복용 중인 약
+            </label>
+            <textarea
+              id="medication"
+              rows={4}
+              placeholder="복용 중인 약이나 영양제가 있다면 입력해주세요 (선택사항)"
+              className="bg-white rounded-lg w-full p-4 text-stone-900 placeholder:text-stone-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-custom-brown-light resize-none"
+              {...register('healthConditions.medication')}
+            />
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   );
 };
 

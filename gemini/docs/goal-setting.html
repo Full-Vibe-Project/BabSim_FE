@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>건강 목표 설정</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 폰트 (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        // Tailwind 커스텀 설정 (이전 파일과 동일)
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'custom-bg': '#f8f5f0', // 메인 배경색
+                        'custom-brown-dark': '#9a846f', // '다음' 버튼 배경
+                        'custom-brown-light': '#b9a389', // 선택된 테두리/아이콘 배경
+                        'custom-text-dark': '#333333', // 기본 텍스트
+                        'custom-text-light': '#6b7280', // 보조 텍스트
+                        'custom-icon-bg-dark': '#756658', // '체중 관리' 아이콘 배경
+                        'custom-icon-bg-light': '#EFEBE6', // '혈당/영양' 아이콘 배경
+                        'custom-selected-bg': '#FBF9F6', // '체중 관리' 카드 배경
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 기본 폰트와 배경색 적용 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f5f0;
+        }
+    </style>
+</head>
+<body class="bg-custom-bg text-custom-text-dark">
+
+    <div class="flex flex-col min-h-screen max-w-md mx-auto p-6">
+
+        <!-- 1. 헤더: 뒤로가기 버튼 및 진행상태 -->
+        <header class="flex justify-between items-center py-2">
+            <!-- 뒤로가기 버튼 (SVG 아이콘) -->
+            <button class="p-2 text-stone-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            
+            <!-- 진행 상태 -->
+            <span class="text-sm font-medium text-stone-500">3/3</span>
+        </header>
+
+        <!-- 2. 메인 콘텐츠: 폼 영역 -->
+        <main class="flex-grow pt-8 pb-12">
+            <div class="space-y-8">
+                
+                <!-- 제목 및 설명 -->
+                <div class="space-y-2">
+                    <h1 class="text-3xl font-bold text-stone-900">건강 목표 설정</h1>
+                    <p class="text-stone-600">달성하고 싶은 건강 목표를 설정해주세요.</p>
+                </div>
+                
+                <!-- 입력 폼 -->
+                <form class="space-y-6" onsubmit="event.preventDefault();">
+                  
+                    <!-- 목표 유형 -->
+                    <div>
+                        <label class="block text-sm font-medium text-stone-700 mb-2">목표 유형</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            
+                            <!-- 선택된 카드 -->
+                            <button type="button" class="flex flex-col items-center justify-center text-center p-4 rounded-lg border-2 border-custom-brown-light bg-custom-selected-bg shadow-sm space-y-2.5 h-32">
+                                <span class="flex items-center justify-center w-10 h-10 rounded-full bg-custom-icon-bg-dark text-white">
+                                    <!-- '체중 관리' 아이콘 (placeholder) -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                                <span class="text-sm font-semibold text-stone-800">체중 관리</span>
+                                <span class="text-xs text-stone-500">건강한 체중 달성</span>
+                            </button>
+                            
+                            <!-- 선택되지 않은 카드 -->
+                            <button type="button" class="flex flex-col items-center justify-center text-center p-4 rounded-lg bg-white shadow-sm space-y-2.5 h-32">
+                                <span class="flex items-center justify-center w-10 h-10 rounded-full bg-custom-icon-bg-light text-stone-700">
+                                    <!-- '혈당 조절' 아이콘 (placeholder) -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                                <span class="text-sm font-semibold text-stone-800">혈당 조절</span>
+                                <span class="text-xs text-stone-500">혈당 수치 관리</span>
+                            </button>
+                            
+                            <!-- 선택되지 않은 카드 -->
+                            <button type="button" class="flex flex-col items-center justify-center text-center p-4 rounded-lg bg-white shadow-sm space-y-2.5 h-32">
+                                <span class="flex items-center justify-center w-10 h-10 rounded-full bg-custom-icon-bg-light text-stone-700">
+                                    <!-- '영양 균형' 아이콘 (placeholder) -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM5 10a1 1 0 011-1h2V7a1 1 0 112 0v2h2a1 1 0 110 2H9v2a1 1 0 11-2 0v-2H5a1 1 0 01-1-1z" />
+                                    </svg>
+                                </span>
+                                <span class="text-sm font-semibold text-stone-800">영양 균형</span>
+                                <span class="text-xs text-stone-500">균형잡힌 식단</span>
+                            </button>
+
+                        </div>
+                    </div>
+                  
+                    <!-- 목표 체중 -->
+                    <div>
+                        <label for="goal-weight" class="block text-sm font-medium text-stone-700 mb-2">목표 체중</label>
+                        <input type="text" id="goal-weight" value="60" 
+                               class="bg-white rounded-lg w-full p-4 text-stone-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-custom-brown-light">
+                    </div>
+
+                    <!-- 목표 기간 (드롭다운 모양) -->
+                    <div>
+                        <label for="goal-period" class="block text-sm font-medium text-stone-700 mb-2">목표 기간</label>
+                        <div class="relative">
+                            <input type="text" id="goal-period" value="3개월" readonly
+                                   class="bg-white rounded-lg w-full p-4 text-stone-900 shadow-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-custom-brown-light">
+                            <!-- 드롭다운 화살표 아이콘 -->
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 주간 목표 -->
+                    <div class="space-y-4 pt-4">
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-stone-700">주간 목표</label>
+                            <p class="text-sm text-stone-500">달성 가능한 작은 목표를 설정해보세요.</p>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <!-- 주간 운동 횟수 -->
+                            <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
+                                <label for="weekly-exercise" class="text-sm font-medium text-stone-700">주간 운동 횟수</label>
+                                <input type="text" id="weekly-exercise" value="3" class="w-20 text-right p-2 rounded-md bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-custom-brown-light">
+                            </div>
+                            <!-- 하루 물 섭취량 -->
+                            <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
+                                <label for="daily-water" class="text-sm font-medium text-stone-700">하루 물 섭취량</label>
+                                <input type="text" id="daily-water" value="2" class="w-20 text-right p-2 rounded-md bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-custom-brown-light">
+                            </div>
+                            <!-- 하루 걸음 수 -->
+                            <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
+                                <label for="daily-steps" class="text-sm font-medium text-stone-700">하루 걸음 수</label>
+                                <input type="text" id="daily-steps" value="8000" class="w-20 text-right p-2 rounded-md bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-custom-brown-light">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- 3. 푸터: '시작하기' 버튼 -->
+        <footer class="pb-4 pt-4">
+            <button type="button" class="w-full bg-custom-brown-dark text-white font-bold py-4 rounded-lg shadow-md hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-custom-brown-dark focus:ring-offset-2">
+                시작하기
+            </button>
+        </footer>
+
+    </div>
+
+</body>
+</html>

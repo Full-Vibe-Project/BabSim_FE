@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>건강 정보 설정</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 폰트 (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        // Tailwind 커스텀 설정 (이전 파일과 동일)
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'custom-bg': '#f8f5f0', // 메인 배경색
+                        'custom-brown-dark': '#9a846f', // '다음' 버튼 배경
+                        'custom-brown-light': '#b9a389', // 선택 버튼 배경 (여기서는 사용되지 않음)
+                        'custom-text-dark': '#333333', // 기본 텍스트
+                        'custom-text-light': '#6b7280', // 보조 텍스트
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 기본 폰트와 배경색 적용 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f5f0;
+        }
+        
+        /* * 커스텀 체크박스 스타일 
+         * Next.js에서는 input의 peer-checked 상태를 사용하거나,
+         * React 상태(state)로 부모 div의 클래스를 동적으로 변경하는 것을 권장합니다.
+         * 여기서는 시각적 재현을 위해 input을 숨기고 label을 스타일링합니다.
+         */
+        .custom-checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            background-color: white;
+            padding: 0.9rem 1.25rem; /* py-3.5 px-5 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* shadow-sm */
+            transition: all 0.2s;
+        }
+        
+        /* 가짜 체크박스 네모 */
+        .custom-checkbox-label::before {
+            content: '';
+            width: 1.15rem; /* w-4.5 */
+            height: 1.15rem; /* h-4.5 */
+            border: 2px solid #cbd5e1; /* border-slate-300 */
+            border-radius: 0.25rem; /* rounded-sm */
+            margin-right: 0.75rem; /* mr-3 */
+            flex-shrink: 0;
+        }
+
+        /* * 실제로는 input:checked + label::before 를 사용해야 합니다.
+         * 여기서는 시연을 위해 input을 사용하지 않고 label만 배치합니다.
+         * Next/React에서는 상태에 따라 label의 클래스(예: 'checked')를 토글하고
+         * .checked::before 에 체크 표시 스타일을 적용하세요.
+         */
+    </style>
+</head>
+<body class="bg-custom-bg text-custom-text-dark">
+
+    <div class="flex flex-col min-h-screen max-w-md mx-auto p-6">
+
+        <!-- 1. 헤더: 뒤로가기 버튼 및 진행상태 -->
+        <header class="flex justify-between items-center py-2">
+            <!-- 뒤로가기 버튼 (SVG 아이콘) -->
+            <button class="p-2 text-stone-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            
+            <!-- 진행 상태 -->
+            <span class="text-sm font-medium text-stone-500">2/3</span>
+        </header>
+
+        <!-- 2. 메인 콘텐츠: 폼 영역 -->
+        <main class="flex-grow pt-8 pb-12">
+            <div class="space-y-10">
+                
+                <!-- 제목 및 설명 -->
+                <div class="space-y-2">
+                    <h1 class="text-3xl font-bold text-stone-900">건강 정보</h1>
+                    <p class="text-stone-600">안전한 식단 관리를 위해 건강 상태를 알려주세요.</p>
+                </div>
+                
+                <!-- 입력 폼 -->
+                <form class="space-y-8" onsubmit="event.preventDefault();">
+                  
+                    <!-- 기저질환 섹션 -->
+                    <div class="space-y-4">
+                        <label class="block text-sm font-medium text-stone-700">기저질환</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <!-- 체크박스 아이템 (시각적 재현) -->
+                            <label class="custom-checkbox-label text-stone-700">당뇨병</label>
+                            <label class="custom-checkbox-label text-stone-700">고혈압</label>
+                            <label class="custom-checkbox-label text-stone-700">고지혈증</label>
+                            <label class="custom-checkbox-label text-stone-700">갑상선 질환</label>
+                            <label class="custom-checkbox-label text-stone-700">통풍</label>
+                            <label class="custom-checkbox-label text-stone-700">신장 질환</label>
+                        </div>
+                        <label class="custom-checkbox-label text-stone-700">해당사항 없음</label>
+                    </div>
+                  
+                    <!-- 식품 알레르기 섹션 -->
+                    <div class="space-y-4">
+                        <label class="block text-sm font-medium text-stone-700">식품 알레르기</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <label class="custom-checkbox-label text-stone-700">우유/유제품</label>
+                            <label class="custom-checkbox-label text-stone-700">계란</label>
+                            <label class="custom-checkbox-label text-stone-700">땅콩</label>
+                            <label class="custom-checkbox-label text-stone-700">갑각류</label>
+                            <label class="custom-checkbox-label text-stone-700">견과류</label>
+                            <label class="custom-checkbox-label text-stone-700">밀</label>
+                            <label class="custom-checkbox-label text-stone-700">콩</label>
+                            <label class="custom-checkbox-label text-stone-700">생선</label>
+                        </div>
+                        <label class="custom-checkbox-label text-stone-700">해당사항 없음</label>
+                    </div>
+
+                    <!-- 현재 복용 중인 약 -->
+                    <div>
+                        <label for="medication" class="block text-sm font-medium text-stone-700 mb-2">현재 복용 중인 약</label>
+                        <textarea id="medication" rows="4" 
+                                  placeholder="복용 중인 약이나 영양제가 있다면 입력해주세요 (선택사항)" 
+                                  class="bg-white rounded-lg w-full p-4 text-stone-900 placeholder:text-stone-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-custom-brown-light resize-none"></textarea>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- 3. 푸터: '다음' 버튼 -->
+        <footer class="pb-4 pt-4">
+            <button type="button" class="w-full bg-custom-brown-dark text-white font-bold py-4 rounded-lg shadow-md hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-custom-brown-dark focus:ring-offset-2">
+                다음
+            </button>
+        </footer>
+
+    </div>
+
+</body>
+</html>

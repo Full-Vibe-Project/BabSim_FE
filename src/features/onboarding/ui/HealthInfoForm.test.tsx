@@ -17,9 +17,10 @@ const TestWrapper = ({ children, defaultValues = {} }: { children: React.ReactNo
       height: 175,
       weight: 70,
       healthConditions: {
-        allergies: [],
         chronicDiseases: [],
-        dietPreferences: [],
+        allergies: [],
+        medication: '',
+        ...defaultValues.healthConditions,
       },
       goalType: 'WEIGHT_MANAGEMENT',
       currentWeight: 70,
@@ -32,92 +33,88 @@ const TestWrapper = ({ children, defaultValues = {} }: { children: React.ReactNo
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(vi.fn())}>
-        {children}
-        <button type="submit">다음</button>
-      </form>
+      <form onSubmit={methods.handleSubmit(vi.fn())}>{children}</form>
     </FormProvider>
   );
 };
 
 describe('HealthInfoForm', () => {
-  describe(`다중 선택 기능 (Multiple Selections)`, () => {
-    it('(AC-1) should allow checking multiple condition checkboxes simultaneously', async () => {
-      render(
-        <TestWrapper>
-          <HealthInfoForm />
-        </TestWrapper>,
-      );
-      const diabetes = screen.getByText('당뇨');
-      const highBloodPressure = screen.getByText('고혈압');
+  const getLabelFor = (checkbox: HTMLElement) => checkbox.closest('label') as HTMLElement;
 
-      await userEvent.click(diabetes);
-      await userEvent.click(highBloodPressure);
+  it('should allow checking multiple condition checkboxes simultaneously', async () => {
+    render(
+      <TestWrapper>
+        <HealthInfoForm />
+      </TestWrapper>,
+    );
+    const chronicDiseaseGroup = screen.getByText('기저질환').closest('div.space-y-4') as HTMLElement;
+    const diabetesCheckbox = within(chronicDiseaseGroup).getByRole('checkbox', { name: '당뇨병', hidden: true });
+    const hypertensionCheckbox = within(chronicDiseaseGroup).getByRole('checkbox', { name: '고혈압', hidden: true });
 
-      expect(diabetes).toHaveClass('bg-blue-500');
-      expect(highBloodPressure).toHaveClass('bg-blue-500');
-    });
+    await userEvent.click(diabetesCheckbox);
+    await userEvent.click(hypertensionCheckbox);
+
+    expect(getLabelFor(diabetesCheckbox)).toHaveClass('ring-2 ring-custom-brown-dark');
+    expect(getLabelFor(hypertensionCheckbox)).toHaveClass('ring-2 ring-custom-brown-dark');
   });
 
-  describe(`'해당사항 없음' 상호작용 ('Not Applicable' Interaction)`, () => {
-    it('(AC-2) should uncheck all other condition checkboxes when "Not Applicable" is checked', async () => {
-      render(
-        <TestWrapper
-          defaultValues={{
-            healthConditions: { allergies: ['견과류', '갑각류'], chronicDiseases: [], dietPreferences: [] },
-          }}
-        >
-          <HealthInfoForm />
-        </TestWrapper>,
-      );
-      const allergyFieldset = screen.getByText('알러지').closest('fieldset') as HTMLElement;
-      const nutsAllergy = within(allergyFieldset).getByText('견과류');
-      const shellfishAllergy = within(allergyFieldset).getByText('갑각류');
-      const noneAllergy = within(allergyFieldset).getByText('해당사항 없음');
+  it('should uncheck all other condition checkboxes when "Not Applicable" is checked', async () => {
+    render(
+      <TestWrapper
+        defaultValues={{
+          healthConditions: { allergies: ['견과류', '갑각류'], chronicDiseases: [], medication: '' },
+        }}
+      >
+        <HealthInfoForm />
+      </TestWrapper>,
+    );
 
-      expect(nutsAllergy).toHaveClass('bg-blue-500');
-      expect(shellfishAllergy).toHaveClass('bg-blue-500');
+    const allergyGroup = screen.getByText('식품 알레르기').closest('div.space-y-4') as HTMLElement;
+    const nutsCheckbox = within(allergyGroup).getByRole('checkbox', { name: '견과류', hidden: true });
+    const shellfishCheckbox = within(allergyGroup).getByRole('checkbox', { name: '갑각류', hidden: true });
+    const noneCheckbox = within(allergyGroup).getByRole('checkbox', { name: '해당사항 없음', hidden: true });
 
-      await userEvent.click(noneAllergy);
-      
-      expect(noneAllergy).toHaveClass('bg-blue-500');
-      expect(nutsAllergy).not.toHaveClass('bg-blue-500');
-      expect(shellfishAllergy).not.toHaveClass('bg-blue-500');
-    });
+    expect(getLabelFor(nutsCheckbox)).toHaveClass('ring-2 ring-custom-brown-dark');
+    expect(getLabelFor(shellfishCheckbox)).toHaveClass('ring-2 ring-custom-brown-dark');
 
-    it('(AC-2) should uncheck the "Not Applicable" checkbox when any other condition is checked', async () => {
-      render(
-        <TestWrapper
-          defaultValues={{
-            healthConditions: { allergies: ['해당사항 없음'], chronicDiseases: [], dietPreferences: [] },
-          }}
-        >
-          <HealthInfoForm />
-        </TestWrapper>,
-      );
+    await userEvent.click(noneCheckbox);
 
-      const allergyFieldset = screen.getByText('알러지').closest('fieldset') as HTMLElement;
-      const noneAllergy = within(allergyFieldset).getByText('해당사항 없음');
-      const nutsAllergy = within(allergyFieldset).getByText('견과류');
-
-      expect(noneAllergy).toHaveClass('bg-blue-500');
-
-      await userEvent.click(nutsAllergy);
-
-      expect(nutsAllergy).toHaveClass('bg-blue-500');
-      expect(noneAllergy).not.toHaveClass('bg-blue-500');
-    });
+    expect(getLabelFor(noneCheckbox)).toHaveClass('ring-2 ring-custom-brown-dark');
+    expect(getLabelFor(nutsCheckbox)).not.toHaveClass('ring-2 ring-custom-brown-dark');
+    expect(getLabelFor(shellfishCheckbox)).not.toHaveClass('ring-2 ring-custom-brown-dark');
   });
 
-  describe(`네비게이션 버튼 상태 (Navigation Button State)`, () => {
-    it('(AC-3) should render the "Next" button as enabled by default', () => {
-      render(
-        <TestWrapper>
-          <HealthInfoForm />
-        </TestWrapper>,
-      );
-      const nextButton = screen.getByRole('button', { name: '다음' });
-      expect(nextButton).not.toBeDisabled();
-    });
+  it('should uncheck "Not Applicable" when any other condition is checked', async () => {
+    render(
+      <TestWrapper
+        defaultValues={{
+          healthConditions: { allergies: ['해당사항 없음'], chronicDiseases: [], medication: '' },
+        }}
+      >
+        <HealthInfoForm />
+      </TestWrapper>,
+    );
+
+    const allergyGroup = screen.getByText('식품 알레르기').closest('div.space-y-4') as HTMLElement;
+    const noneCheckbox = within(allergyGroup).getByRole('checkbox', { name: '해당사항 없음', hidden: true });
+    const nutsCheckbox = within(allergyGroup).getByRole('checkbox', { name: '견과류', hidden: true });
+
+    expect(getLabelFor(noneCheckbox)).toHaveClass('ring-2 ring-custom-brown-dark');
+
+    await userEvent.click(nutsCheckbox);
+
+    expect(getLabelFor(nutsCheckbox)).toHaveClass('ring-2 ring-custom-brown-dark');
+    expect(getLabelFor(noneCheckbox)).not.toHaveClass('ring-2 ring-custom-brown-dark');
+  });
+
+  it('should allow user to type in the medication textarea', async () => {
+    render(
+      <TestWrapper>
+        <HealthInfoForm />
+      </TestWrapper>,
+    );
+    const medicationTextarea = screen.getByPlaceholderText('복용 중인 약이나 영양제가 있다면 입력해주세요 (선택사항)');
+    await userEvent.type(medicationTextarea, '아스피린 100mg');
+    expect(medicationTextarea).toHaveValue('아스피린 100mg');
   });
 });

@@ -20,88 +20,147 @@ const BasicInfoForm = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-md mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <div className="space-y-8">
+      {/* 제목 및 설명 */}
       <div className="space-y-2">
-        <label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">이름</label>
-        <Controller
-          name="name"
-          control={control}
-          render={({ field, fieldState: { error } }) => (
-            <>
-              <input id="name" {...field} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" />
-              {error && <p className="text-sm text-red-600 mt-1">{error.message}</p>}
-            </>
-          )}
-        />
+        <h1 className="text-3xl font-bold text-stone-900">기본 프로필</h1>
+        <p className="text-stone-600">맞춤형 건강 관리를 위해 기본 정보를 입력해주세요.</p>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">성별</label>
-        <Controller
-          name="gender"
-          control={control}
-          render={({ field, fieldState: { error } }) => (
-            <>
-              <div className="flex gap-4">
-                <label htmlFor="female" className="flex items-center space-x-2 cursor-pointer">
-                  <input {...field} type="radio" id="female" value="FEMALE" checked={field.value === 'FEMALE'} onChange={() => field.onChange('FEMALE')} className="hidden" />
-                  <span className={`px-4 py-2 rounded-md border ${field.value === 'FEMALE' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'}`}>여성</span>
-                </label>
-                <label htmlFor="male" className="flex items-center space-x-2 cursor-pointer">
-                  <input {...field} type="radio" id="male" value="MALE" checked={field.value === 'MALE'} onChange={() => field.onChange('MALE')} className="hidden" />
-                  <span className={`px-4 py-2 rounded-md border ${field.value === 'MALE' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'}`}>남성</span>
-                </label>
-              </div>
-              {error && <p className="text-sm text-red-600 mt-1">{error.message}</p>}
-            </>
-          )}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label htmlFor="birthdate" className="text-sm font-medium text-gray-700 dark:text-gray-300">생년월일</label>
-        <Controller
-          name="birthdate"
-          control={control}
-          render={({ field, fieldState: { error } }) => (
-            <>
-              <input id="birthdate" {...field} onChange={handleBirthdateChange} placeholder="YYYY-MM-DD" className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" />
-              {error && <p className="text-sm text-red-600 mt-1">{error.message}</p>}
-            </>
-          )}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label htmlFor="height" className="text-sm font-medium text-gray-700 dark:text-gray-300">키 (cm)</label>
+      {/* 입력 폼 */}
+      <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+        {/* 이름 */}
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-stone-700 mb-2">
+            이름
+          </label>
           <Controller
-            name="height"
+            name="name"
             control={control}
             render={({ field, fieldState: { error } }) => (
               <>
-                <input id="height" type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" />
+                <input
+                  type="text"
+                  id="name"
+                  {...field}
+                  placeholder="이름을 입력하세요"
+                  className="bg-white rounded-lg w-full p-4 text-stone-900 placeholder:text-stone-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-custom-brown-light"
+                />
                 {error && <p className="text-sm text-red-600 mt-1">{error.message}</p>}
               </>
             )}
           />
         </div>
-        <div className="space-y-2">
-          <label htmlFor="weight" className="text-sm font-medium text-gray-700 dark:text-gray-300">몸무게 (kg)</label>
+
+        {/* 성별 */}
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-2">성별</label>
           <Controller
-            name="weight"
+            name="gender"
             control={control}
             render={({ field, fieldState: { error } }) => (
               <>
-                <input id="weight" type="number" step="0.1" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" />
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => field.onChange('FEMALE')}
+                    className={`py-3.5 rounded-lg font-semibold shadow-sm ${
+                      field.value === 'FEMALE'
+                        ? 'bg-custom-brown-light text-white'
+                        : 'bg-white text-stone-700'
+                    }`}
+                  >
+                    여성
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => field.onChange('MALE')}
+                    className={`py-3.5 rounded-lg font-semibold shadow-sm ${
+                      field.value === 'MALE'
+                        ? 'bg-custom-brown-light text-white'
+                        : 'bg-white text-stone-700'
+                    }`}
+                  >
+                    남성
+                  </button>
+                </div>
                 {error && <p className="text-sm text-red-600 mt-1">{error.message}</p>}
               </>
             )}
           />
         </div>
-      </div>
 
+        {/* 생년월일 */}
+        <div>
+          <label htmlFor="birthdate" className="block text-sm font-medium text-stone-700 mb-2">
+            생년월일
+          </label>
+          <Controller
+            name="birthdate"
+            control={control}
+            render={({ field, fieldState: { error } }) => (
+              <>
+                <input
+                  type="text"
+                  id="birthdate"
+                  {...field}
+                  onChange={handleBirthdateChange}
+                  placeholder="YYYY-MM-DD"
+                  className="bg-white rounded-lg w-full p-4 text-stone-900 placeholder:text-stone-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-custom-brown-light"
+                />
+                {error && <p className="text-sm text-red-600 mt-1">{error.message}</p>}
+              </>
+            )}
+          />
+        </div>
 
+        {/* 키 / 몸무게 */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="height" className="block text-sm font-medium text-stone-700 mb-2">
+              키 (cm)
+            </label>
+            <Controller
+              name="height"
+              control={control}
+              render={({ field, fieldState: { error } }) => (
+                <>
+                  <input
+                    type="number"
+                    id="height"
+                    {...field}
+                    onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
+                    className="bg-white rounded-lg w-full p-4 text-stone-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-custom-brown-light"
+                  />
+                  {error && <p className="text-sm text-red-600 mt-1">{error.message}</p>}
+                </>
+              )}
+            />
+          </div>
+          <div>
+            <label htmlFor="weight" className="block text-sm font-medium text-stone-700 mb-2">
+              몸무게 (kg)
+            </label>
+            <Controller
+              name="weight"
+              control={control}
+              render={({ field, fieldState: { error } }) => (
+                <>
+                  <input
+                    type="number"
+                    id="weight"
+                    step="0.1"
+                    {...field}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    className="bg-white rounded-lg w-full p-4 text-stone-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-custom-brown-light"
+                  />
+                  {error && <p className="text-sm text-red-600 mt-1">{error.message}</p>}
+                </>
+              )}
+            />
+          </div>
+        </div>
+      </form>
     </div>
   );
 };
