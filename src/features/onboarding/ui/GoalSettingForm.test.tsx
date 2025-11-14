@@ -1,152 +1,148 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { FormProvider, useForm } from 'react-hook-form';
 import GoalSettingForm from './GoalSettingForm';
 import { onboardingSchema, OnboardingData } from '../model/onboarding.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
+const TestWrapper = ({
+  children,
+  defaultValues = {},
+}: {
+  children: React.ReactNode;
+  defaultValues?: Partial<OnboardingData>;
+}) => {
   const methods = useForm<OnboardingData>({
     resolver: zodResolver(onboardingSchema),
     mode: 'onChange',
     defaultValues: {
       name: 'test',
-      gender: 'FEMALE',
-      birthdate: '2000-01-01',
-      height: 170,
-      weight: 60,
+      gender: 'MALE',
+      birthdate: '1990-01-01',
+      height: 175,
+      weight: 70, // This will be used as currentWeight
       healthConditions: {
         allergies: [],
         chronicDiseases: [],
-        dietPreferences: [],
+        medication: '',
       },
-      goalType: 'WEIGHT_MANAGEMENT',
-      currentWeight: 70,
-      targetWeight: 65,
-      weeklyGoal: 500,
+      goalType: 'HEALTH_MANAGEMENT', // Default to a non-weight goal
       exerciseCount: 3,
-    }
+      dailyWaterIntake: 2,
+      dailySteps: 8000,
+      ...defaultValues,
+    },
   });
-  return <FormProvider {...methods}>{children}</FormProvider>;
+
+  // Mock submit function
+  const onSubmit = vi.fn();
+
+  return (
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(onSubmit)}>{children}</form>
+    </FormProvider>
+  );
 };
 
 describe('GoalSettingForm', () => {
   describe('Goal Type Selection', () => {
-    it('(AC-1) should select only one goal type at a time, like a radio button', async () => {
+    it('should show weight-specific fields only when "Weight Management" is selected', async () => {
       render(
         <TestWrapper>
           <GoalSettingForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      await userEvent.click(screen.getByText('체중 관리'));
-      expect(screen.getByLabelText('체중 관리')).toBeChecked();
-      await userEvent.click(screen.getByText('식단 관리'));
-      expect(screen.getByLabelText('체중 관리')).not.toBeChecked();
-      expect(screen.getByLabelText('식단 관리')).toBeChecked();
-    });
 
-    it('(AC-2) should enable the weight input fields only when "Weight Management" is selected', async () => {
-      render(
-        <TestWrapper>
-          <GoalSettingForm />
-        </TestWrapper>
-      );
-      await userEvent.click(screen.getByText('체중 관리'));
-      expect(screen.getByLabelText(/현재 체중/i)).toBeEnabled();
-      expect(screen.getByLabelText(/목표 체중/i)).toBeEnabled();
-    });
+      // Initially, weight fields should not be visible
+      expect(screen.queryByLabelText(/목표 체중/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/목표 기간/i)).not.toBeInTheDocument();
 
-    it('(AC-2) should disable the weight input fields when a goal type other than "Weight Management" is selected', async () => {
-      render(
-        <TestWrapper>
-          <GoalSettingForm />
-        </TestWrapper>
-      );
-      await userEvent.click(screen.getByText('식단 관리'));
-      expect(screen.getByLabelText(/현재 체중/i)).toBeDisabled();
-      expect(screen.getByLabelText(/목표 체중/i)).toBeDisabled();
+      // Click "Weight Management"
+      const weightManagementButton = screen.getByRole('button', { name: /체중 관리/i });
+      await userEvent.click(weightManagementButton);
+
+      // Now, weight fields should be visible
+      expect(await screen.findByLabelText(/목표 체중/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/목표 기간/i)).toBeInTheDocument();
+
+      // Click another goal type
+      const nutritionBalanceButton = screen.getByRole('button', { name: /영양 균형/i });
+      await userEvent.click(nutritionBalanceButton);
+
+      // Weight fields should disappear again
+      await waitFor(() => {
+        expect(screen.queryByLabelText(/목표 체중/i)).not.toBeInTheDocument();
+      });
+      expect(screen.queryByLabelText(/목표 기간/i)).not.toBeInTheDocument();
     });
   });
 
-  describe('Dynamic Validation', () => {
-    it('(AC-3) should display an error message if the target weight is the same as the current weight', async () => {
+  describe('Dynamic Validation for Weight Management', () => {
+    it('should display an error if target weight is the same as current weight', async () => {
+      // Default weight in TestWrapper is 70
       render(
         <TestWrapper>
           <GoalSettingForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      await userEvent.click(screen.getByText('체중 관리'));
-      await userEvent.type(screen.getByLabelText(/현재 체중/i), '70');
-      await userEvent.type(screen.getByLabelText(/목표 체중/i), '70');
+
+      // Select "Weight Management" to show the fields
+      const weightManagementButton = screen.getByRole('button', { name: /체중 관리/i });
+      await userEvent.click(weightManagementButton);
+
+      const targetWeightInput = await screen.findByLabelText(/목표 체중/i);
+      await userEvent.type(targetWeightInput, '70');
+
       expect(await screen.findByText('목표 체중은 현재 체중과 같을 수 없습니다.')).toBeInTheDocument();
     });
 
-    it('should remove the error message when the target weight is changed to be different', async () => {
+    it('should remove the error when target weight is different', async () => {
       render(
         <TestWrapper>
           <GoalSettingForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      await userEvent.click(screen.getByText('체중 관리'));
-      await userEvent.type(screen.getByLabelText(/현재 체중/i), '70');
-      await userEvent.type(screen.getByLabelText(/목표 체중/i), '70');
+
+      const weightManagementButton = screen.getByRole('button', { name: /체중 관리/i });
+      await userEvent.click(weightManagementButton);
+
+      const targetWeightInput = await screen.findByLabelText(/목표 체중/i);
+      await userEvent.type(targetWeightInput, '70');
       expect(await screen.findByText('목표 체중은 현재 체중과 같을 수 없습니다.')).toBeInTheDocument();
-      await userEvent.clear(screen.getByLabelText(/목표 체중/i));
-      await userEvent.type(screen.getByLabelText(/목표 체중/i), '65');
+
+      await userEvent.clear(targetWeightInput);
+      await userEvent.type(targetWeightInput, '65');
+
       await waitFor(() => {
         expect(screen.queryByText('목표 체중은 현재 체중과 같을 수 없습니다.')).not.toBeInTheDocument();
       });
     });
   });
 
-  describe('Submit Button Activation Logic', () => {
-    it('(AC-4) should render the "Start" button as disabled initially', () => {
+  describe('Weekly Goal Inputs', () => {
+    it('should allow user to input weekly goals', async () => {
       render(
         <TestWrapper>
           <GoalSettingForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      expect(screen.getByRole('button', { name: /시작하기/i })).toBeDisabled();
-    });
 
-    it('(AC-4) should keep the "Start" button disabled if "Weight Management" is selected but weight fields are invalid', async () => {
-      render(
-        <TestWrapper>
-          <GoalSettingForm />
-        </TestWrapper>
-      );
-      await userEvent.click(screen.getByText('체중 관리'));
-      await userEvent.type(screen.getByLabelText(/현재 체중/i), '70');
-      expect(screen.getByRole('button', { name: /시작하기/i })).toBeDisabled();
-    });
+      const exerciseInput = screen.getByLabelText(/주간 운동 횟수/i);
+      const waterInput = screen.getByLabelText(/하루 물 섭취량/i);
+      const stepsInput = screen.getByLabelText(/하루 걸음 수/i);
 
-    it('(AC-5) should enable the "Start" button when all required fields for the "Weight Management" goal are validly filled', async () => {
-      render(
-        <TestWrapper>
-          <GoalSettingForm />
-        </TestWrapper>
-      );
-      await userEvent.click(screen.getByText('체중 관리'));
-      await userEvent.type(screen.getByLabelText(/현재 체중/i), '70');
-      await userEvent.type(screen.getByLabelText(/목표 체중/i), '65');
-      await userEvent.selectOptions(screen.getByLabelText(/주간 목표/i), '500');
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /시작하기/i })).toBeEnabled();
-      });
-    });
+      await userEvent.clear(exerciseInput);
+      await userEvent.type(exerciseInput, '5');
+      expect(exerciseInput).toHaveValue(5);
 
-    it('(AC-5) should enable the "Start" button when a goal type other than "Weight Management" is selected and all other required fields are filled', async () => {
-      render(
-        <TestWrapper>
-          <GoalSettingForm />
-        </TestWrapper>
-      );
-      await userEvent.click(screen.getByText('식단 관리'));
-      await userEvent.selectOptions(screen.getByLabelText(/주간 목표/i), '500');
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /시작하기/i })).toBeEnabled();
-      });
+      await userEvent.clear(waterInput);
+      await userEvent.type(waterInput, '3');
+      expect(waterInput).toHaveValue(3);
+
+      await userEvent.clear(stepsInput);
+      await userEvent.type(stepsInput, '10000');
+      expect(stepsInput).toHaveValue(10000);
     });
   });
 });
